@@ -1,0 +1,31 @@
+﻿@inherits LayoutComponentBase
+@inject IJSRuntime JS
+
+<NavMenu />
+
+<main>
+    @Body
+</main>
+
+<footer class="footer">
+    <div class="footer-content">
+        <div class="footer-logo">Sultana BBQ</div>
+        <div class="footer-links">
+            <a href="tel:+31685605933">+31 6 85605933</a>
+            <a href="mailto:Sultanabbqinfo@gmail.com">Email</a>
+            <a href="https://bistroo.nl/utrecht/restaurants/sultana-bbq" target="_blank" rel="noopener noreferrer">Bestel Online</a>
+        </div>
+        <div class="footer-copy">&copy; 2026 Sultana BBQ Utrecht. Alle rechten voorbehouden.</div>
+    </div>
+</footer>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("SultanaInterop.hidePreloader");
+            await JS.InvokeVoidAsync("SultanaAnimations.init");
+        }
+    }
+}

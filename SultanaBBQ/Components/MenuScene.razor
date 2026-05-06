@@ -1,0 +1,74 @@
+@inject IJSRuntime JS
+@using SultanaBBQ.Services
+
+<section class="menu-section" id="menu">
+    <div class="menu-header reveal">
+        <h2>Ons Menu</h2>
+        <p>Klik op een gerecht in de 3D-scene of kies een categorie</p>
+    </div>
+
+    <div id="scene-container"></div>
+
+    <div class="menu-categories">
+        @foreach (var category in MenuService.GetCategories())
+        {
+            <button class="menu-category-btn @(selectedCategory == category ? "active" : "")"
+                    @onclick="() => SelectCategory(category)">
+                @category
+            </button>
+        }
+    </div>
+</section>
+
+<!-- Menu Detail Panel -->
+<div class="menu-panel @(panelOpen ? "open" : "")">
+    <button class="menu-panel-close" @onclick="ClosePanel">&times;</button>
+
+    @if (selectedCategory != null)
+    {
+        <h3>@selectedCategory</h3>
+        @foreach (var item in MenuService.GetItemsByCategory(selectedCategory))
+        {
+            <div class="menu-item">
+                <div class="menu-item-info">
+                    <h4>@item.Name</h4>
+                    <p>@item.Description</p>
+                </div>
+                <div class="menu-item-price">€@item.Price.ToString("F2")</div>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    private string? selectedCategory;
+    private bool panelOpen = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("SultanaScene.init", "scene-container", DotNetObjectReference.Create(this));
+        }
+    }
+
+    private void SelectCategory(string category)
+    {
+        selectedCategory = category;
+        panelOpen = true;
+        StateHasChanged();
+    }
+
+    private void ClosePanel()
+    {
+        panelOpen = false;
+    }
+
+    [JSInvokable]
+    public void OnFoodItemClicked(string category)
+    {
+        selectedCategory = category;
+        panelOpen = true;
+        StateHasChanged();
+    }
+}

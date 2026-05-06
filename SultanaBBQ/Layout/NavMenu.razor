@@ -1,0 +1,56 @@
+﻿@inject IJSRuntime JS
+
+<nav class="nav @(scrolled ? "scrolled" : "")">
+    <a class="nav-logo" href="#">Sultana BBQ</a>
+
+    <div class="nav-links @(mobileOpen ? "open" : "")">
+        <a href="#home" @onclick="CloseMenu" @onclick:preventDefault="false">Home</a>
+        <a href="#about" @onclick="CloseMenu" @onclick:preventDefault="false">Over Ons</a>
+        <a href="#menu" @onclick="CloseMenu" @onclick:preventDefault="false">Menu</a>
+        <a href="#reviews" @onclick="CloseMenu" @onclick:preventDefault="false">Reviews</a>
+        <a href="#contact" @onclick="CloseMenu" @onclick:preventDefault="false">Contact</a>
+    </div>
+
+    <a class="nav-order-btn" href="https://bistroo.nl/utrecht/restaurants/sultana-bbq" target="_blank" rel="noopener noreferrer">
+        Bestellen
+    </a>
+
+    <button class="nav-hamburger" @onclick="ToggleMenu" aria-label="Menu openen">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+</nav>
+
+@code {
+    private bool mobileOpen = false;
+    private bool scrolled = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("SultanaInterop.initNavScroll", DotNetObjectReference.Create(this));
+        }
+    }
+
+    private void ToggleMenu()
+    {
+        mobileOpen = !mobileOpen;
+    }
+
+    private void CloseMenu()
+    {
+        mobileOpen = false;
+    }
+
+    [JSInvokable]
+    public void SetScrolled(bool value)
+    {
+        if (scrolled != value)
+        {
+            scrolled = value;
+            StateHasChanged();
+        }
+    }
+}
