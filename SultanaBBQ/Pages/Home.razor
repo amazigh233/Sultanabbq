@@ -1,10 +1,62 @@
-﻿@page "/"
+@page "/"
 @using SultanaBBQ.Components
+@using SultanaBBQ.Services
+@inject IJSRuntime JS
 
-<PageTitle>Sultana BBQ — Midden-Oosterse BBQ Utrecht</PageTitle>
+<SeoHead Title="Sultana BBQ Utrecht Overvecht | Halal BBQ en grillrestaurant"
+         Description="Sultana BBQ is een halal BBQ- en grillrestaurant in Utrecht Overvecht voor mixed grill, grillgerechten, afhalen, bezorgen, families en groepen."
+         Path="/"
+         JsonLd="@JsonLd" />
 
 <HeroSection />
 <AboutSection />
 <MenuScene />
+<section class="local-intro-section">
+    <div class="section-content local-intro-grid">
+        <div>
+            <p class="section-label">Halal BBQ in Utrecht Overvecht</p>
+            <h2>Sultana BBQ voor grill, mixed grill en samen eten</h2>
+            <p>
+                Sultana BBQ is een halal BBQ- en grillrestaurant in Utrecht Overvecht voor
+                gasten die zin hebben in warm, royaal en vers bereid eten. Op het menu staan
+                grillgerechten, mixed grill, kipgerechten, vleesgerechten, burgers, schotels
+                en bijgerechten die je in het restaurant kunt eten of kunt bestellen voor
+                afhalen en bezorgen.
+            </p>
+            <p>
+                De locatie aan de Zamenhofdreef is praktisch voor bewoners van Overvecht en
+                bezoekers uit de rest van Utrecht. Families, vriendengroepen en liefhebbers
+                van mixed grill vinden hier een menu dat makkelijk te delen is. Je kunt snel
+                het menu bekijken, een tafel reserveren, route openen of telefonisch contact
+                opnemen met het restaurant.
+            </p>
+        </div>
+        <div class="local-intro-actions" aria-label="Belangrijke acties">
+            <a class="btn-primary" href="/menu"><span>Bekijk menu</span></a>
+            <a class="btn-outline" href="/reserveren"><span>Reserveer tafel</span></a>
+            <a class="btn-outline" href="/afhalen-bezorgen"><span>Bestel afhalen</span></a>
+            <a class="btn-outline" href="@RestaurantInfo.MapsUrl" target="_blank" rel="noopener noreferrer"><span>Route openen</span></a>
+        </div>
+    </div>
+</section>
+<RestaurantTourSection />
 <ReviewsSection />
 <ContactSection />
+<FaqSection Items="@SeoSchema.DefaultFaqs" />
+
+@code {
+    private static readonly IReadOnlyList<BreadcrumbItem> Breadcrumbs =
+    [
+        new("Home", "/")
+    ];
+
+    private static string JsonLd => SeoSchema.BuildPageSchema("/", Breadcrumbs, SeoSchema.DefaultFaqs, includeMenu: true);
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("SultanaInterop.initDeferredAnimations");
+        }
+    }
+}
