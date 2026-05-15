@@ -1,0 +1,12 @@
+/Users/bilalzambib/Sultanabbq/SultanaBBQ/SultanaBBQ.Shared/bin/Debug/net9.0/SultanaBBQ.Shared.deps.json
+/Users/bilalzambib/Sultanabbq/SultanaBBQ/SultanaBBQ.Shared/bin/Debug/net9.0/SultanaBBQ.Shared.dll
+/Users/bilalzambib/Sultanabbq/SultanaBBQ/SultanaBBQ.Shared/bin/Debug/net9.0/SultanaBBQ.Shared.pdb
+/Users/bilalzambib/Sultanabbq/SultanaBBQ/SultanaBBQ.Shared/obj/Debug/net9.0/SultanaBBQ.Shared.GeneratedMSBuildEditorConfig.editorconfig
+/Users/bilalzambib/Sultanabbq/SultanaBBQ/SultanaBBQ.Shared/obj/Debug/net9.0/SultanaBBQ.Shared.AssemblyInfoInputs.cache
+/Users/bilalzambib/Sultanabbq/SultanaBBQ/SultanaBBQ.Shared/obj/Debug/net9.0/SultanaBBQ.Shared.AssemblyInfo.cs
+/Users/bilalzambib/Sultanabbq/SultanaBBQ/SultanaBBQ.Shared/obj/Debug/net9.0/SultanaBBQ.Shared.csproj.CoreCompileInputs.cache
+/Users/bilalzambib/Sultanabbq/SultanaBBQ/SultanaBBQ.Shared/obj/Debug/net9.0/SultanaBBQ.Shared.sourcelink.json
+/Users/bilalzambib/Sultanabbq/SultanaBBQ/SultanaBBQ.Shared/obj/Debug/net9.0/SultanaBBQ.Shared.dll
+/Users/bilalzambib/Sultanabbq/SultanaBBQ/SultanaBBQ.Shared/obj/Debug/net9.0/refint/SultanaBBQ.Shared.dll
+/Users/bilalzambib/Sultanabbq/SultanaBBQ/SultanaBBQ.Shared/obj/Debug/net9.0/SultanaBBQ.Shared.pdb
+/Users/bilalzambib/Sultanabbq/SultanaBBQ/SultanaBBQ.Shared/obj/Debug/net9.0/ref/SultanaBBQ.Shared.dll

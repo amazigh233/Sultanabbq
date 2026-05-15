@@ -1,0 +1,76 @@
+@using SultanaBBQ.Services
+
+<SeoHead Title="@Title"
+         Description="@Description"
+         Path="@Path"
+         JsonLd="@SeoSchema.BuildPageSchema(Path, Breadcrumbs, FaqItems)" />
+
+<section class="seo-hero">
+    <div class="seo-hero-inner">
+        <p class="section-label">@Eyebrow</p>
+        <h1>@H1</h1>
+        <p>@Intro</p>
+        <div class="seo-hero-actions">
+            @foreach (var link in PrimaryLinks)
+            {
+                <a class="@(link.Style == "outline" ? "btn-outline" : "btn-primary")" href="@link.Href">
+                    <span>@link.Text</span>
+                </a>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="seo-content">
+    <div class="seo-content-inner">
+        <div class="seo-copy">
+            @foreach (var block in Blocks)
+            {
+                <section class="seo-copy-block">
+                    <h2>@block.Heading</h2>
+                    @foreach (var paragraph in block.Paragraphs)
+                    {
+                        <p>@paragraph</p>
+                    }
+                </section>
+            }
+        </div>
+
+        <aside class="seo-side-panel" aria-label="Snel naar">
+            <h2>Snel regelen</h2>
+            <a class="btn-primary" href="/menu"><span>Bekijk menu</span></a>
+            <a class="btn-outline" href="/reserveren"><span>Reserveer tafel</span></a>
+            <a class="btn-outline" href="/afhalen-bezorgen"><span>Bestel afhalen</span></a>
+            <a class="btn-outline" href="@RestaurantInfo.MapsUrl" target="_blank" rel="noopener noreferrer"><span>Route openen</span></a>
+            <a class="btn-outline" href="tel:@RestaurantInfo.PhoneHref"><span>Bel direct</span></a>
+
+            <div class="seo-local-box">
+                <h3>Locatie</h3>
+                <p>@RestaurantInfo.StreetAddress<br />@RestaurantInfo.PostalCode @RestaurantInfo.Locality</p>
+                <p>Dagelijks geopend van 11:00 tot 22:00.</p>
+            </div>
+        </aside>
+    </div>
+</section>
+
+<FaqSection Items="@FaqItems" />
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string Description { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string Path { get; set; } = "/";
+    [Parameter, EditorRequired] public string H1 { get; set; } = string.Empty;
+    [Parameter] public string Eyebrow { get; set; } = "Sultana BBQ Utrecht Overvecht";
+    [Parameter, EditorRequired] public string Intro { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public IReadOnlyList<SeoContentBlock> Blocks { get; set; } = [];
+    [Parameter] public IReadOnlyList<FaqItem> FaqItems { get; set; } = SeoSchema.DefaultFaqs;
+    [Parameter] public IReadOnlyList<BreadcrumbItem> Breadcrumbs { get; set; } =
+    [
+        new("Home", "/")
+    ];
+    [Parameter] public IReadOnlyList<SeoLink> PrimaryLinks { get; set; } =
+    [
+        new("Bekijk menu", "/menu"),
+        new("Reserveer tafel", "/reserveren", "outline")
+    ];
+}

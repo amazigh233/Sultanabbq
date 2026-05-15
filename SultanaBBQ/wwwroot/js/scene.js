@@ -1,6 +1,5 @@
 // ============================================
-// SULTANA BBQ — Interactive 3D Menu Scene
-// Three.js scene with stylized food items on a BBQ grill
+// SULTANA BBQ — Interactive 3D Menu Scene v2
 // ============================================
 
 window.SultanaScene = (() => {
@@ -10,633 +9,947 @@ window.SultanaScene = (() => {
     let blazorRef = null;
     let containerId = null;
     let animationId = null;
-    let particles = [];
+    let fireParticles = null;
+    let smokeParticles = null;
+    let emberParticles = null;
+    let fireLights = [];
     let time = 0;
+    let hoveredItem = null;
+
+    // Materials reused across models
+    const MAT = {};
 
     const FOOD_CATEGORIES = [
-        { name: 'Grillgerechten', color: 0xC44536, position: { x: 0, y: 1.5, z: 0 }, shape: 'mixed' },
-        { name: 'Kebab', color: 0xD4A853, position: { x: -2.5, y: 1.2, z: 1 }, shape: 'cylinder' },
-        { name: 'Falafel', color: 0x8B9A46, position: { x: 2.5, y: 1.0, z: 1 }, shape: 'sphere' },
-        { name: 'Hamburgers', color: 0x8B4513, position: { x: -1.5, y: 1.3, z: -2 }, shape: 'burger' },
-        { name: 'Wraps', color: 0xDEB887, position: { x: 1.5, y: 1.1, z: -2 }, shape: 'wrap' },
-        { name: 'Koude Voorgerechten', color: 0x6B8E23, position: { x: -3.5, y: 0.8, z: -1 }, shape: 'bowl' },
-        { name: 'Snacks', color: 0xDAA520, position: { x: 3.5, y: 0.9, z: -1 }, shape: 'fries' },
-        { name: 'Warme Voorgerechten', color: 0xCD853F, position: { x: 0, y: 1.0, z: 3 }, shape: 'plate' },
-        { name: 'Dranken', color: 0x87CEEB, position: { x: 3.8, y: 1.2, z: 2 }, shape: 'glass' },
+        { name: 'Grillgerechten', color: 0xB5451B, position: { x:  0,    y: 1.6, z:  0   }, shape: 'mixed'   },
+        { name: 'Mixed grill',    color: 0xC8832A, position: { x: -2.8,  y: 1.4, z:  0.8  }, shape: 'kebab'   },
+        { name: 'Kipgerechten',   color: 0xD4A020, position: { x:  2.8,  y: 1.2, z:  0.8  }, shape: 'plate'   },
+        { name: 'Vleesgerechten', color: 0x7A3B10, position: { x: -1.8,  y: 1.4, z: -2.2  }, shape: 'wrap'    },
+        { name: 'Burgers',        color: 0x7A3B10, position: { x:  1.8,  y: 1.3, z: -2.2  }, shape: 'burger'  },
+        { name: 'Schotels',       color: 0xBB6B2A, position: { x: -3.6,  y: 1.0, z: -1.0  }, shape: 'plate'   },
+        { name: 'Bijgerechten',   color: 0x5A7A22, position: { x:  3.6,  y: 1.1, z: -1.0  }, shape: 'falafel' },
+        { name: 'Dranken',        color: 0x6ABADC, position: { x:  3.8,  y: 1.4, z:  2.0  }, shape: 'glass'   },
     ];
 
+    // ─── Init ───────────────────────────────────────────────────────────────
     function init(containerElementId, dotNetRef) {
+        if (window.innerWidth <= 768) return; // geen 3D scene op mobiel
         containerId = containerElementId;
-        blazorRef = dotNetRef;
-
+        blazorRef   = dotNetRef;
         const container = document.getElementById(containerId);
         if (!container) return;
 
-        // Scene setup
+        // Scene
         scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x0D0D0D, 0.08);
+        scene.fog = new THREE.FogExp2(0x0A0A0A, 0.055);
+        scene.background = new THREE.Color(0x0A0A0A);
 
         // Camera
-        camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
-        camera.position.set(0, 5, 10);
-        camera.lookAt(0, 0, 0);
+        camera = new THREE.PerspectiveCamera(42, container.clientWidth / container.clientHeight, 0.1, 120);
+        camera.position.set(0, 6.5, 12);
+        camera.lookAt(0, 0.5, 0);
 
         // Renderer
-        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(container.clientWidth, container.clientHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        renderer.setClearColor(0x0D0D0D, 1);
         renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.shadowMap.type    = THREE.PCFSoftShadowMap;
+        renderer.toneMapping       = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.1;
         container.appendChild(renderer.domElement);
 
         // Controls
         controls = new THREE.OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.dampingFactor = 0.05;
-        controls.maxPolarAngle = Math.PI / 2.2;
-        controls.minPolarAngle = Math.PI / 6;
-        controls.maxDistance = 15;
-        controls.minDistance = 5;
-        controls.enablePan = false;
-        controls.autoRotate = true;
-        controls.autoRotateSpeed = 0.5;
+        controls.enableDamping    = true;
+        controls.dampingFactor    = 0.06;
+        controls.maxPolarAngle    = Math.PI / 2.05;
+        controls.minPolarAngle    = Math.PI / 8;
+        controls.maxDistance      = 17;
+        controls.minDistance      = 5;
+        controls.enablePan        = false;
+        controls.enableZoom       = false;
+        controls.autoRotate       = true;
+
+        // On touch devices disable drag controls so single-finger page scroll works
+        if ('ontouchstart' in window) {
+            controls.enableRotate = false;
+        }
+        controls.autoRotateSpeed  = 0.4;
+        controls.target.set(0, 0.5, 0);
 
         // Raycaster
         raycaster = new THREE.Raycaster();
-        mouse = new THREE.Vector2();
+        mouse     = new THREE.Vector2();
 
-        // Lighting
+        // Build shared materials
+        buildMaterials();
+
+        // Scene objects
         setupLighting();
-
-        // Create scene objects
+        createGround();
         createGrill();
         createFoodItems();
         createFireParticles();
-        createAmbientParticles();
+        createSmokeParticles();
+        createEmberParticles();
 
         // Events
-        container.addEventListener('click', onMouseClick);
+        container.addEventListener('click',     onMouseClick);
         container.addEventListener('mousemove', onMouseMove);
-        window.addEventListener('resize', onResize);
+        window.addEventListener('resize',       onResize);
 
-        // Start render loop
         animate();
     }
 
-    function setupLighting() {
-        // Ambient light
-        const ambient = new THREE.AmbientLight(0x333333, 0.5);
-        scene.add(ambient);
-
-        // Main warm light from above
-        const mainLight = new THREE.DirectionalLight(0xFFDDBB, 1.0);
-        mainLight.position.set(2, 8, 4);
-        mainLight.castShadow = true;
-        mainLight.shadow.mapSize.width = 1024;
-        mainLight.shadow.mapSize.height = 1024;
-        scene.add(mainLight);
-
-        // Fire glow from below (grill)
-        const fireLight = new THREE.PointLight(0xFF4500, 2, 8);
-        fireLight.position.set(0, 0.3, 0);
-        scene.add(fireLight);
-
-        // Secondary fire light
-        const fireLight2 = new THREE.PointLight(0xD4A853, 1.5, 6);
-        fireLight2.position.set(-1, 0.5, 1);
-        scene.add(fireLight2);
-
-        // Rim light
-        const rimLight = new THREE.PointLight(0xC44536, 0.8, 10);
-        rimLight.position.set(-4, 3, -4);
-        scene.add(rimLight);
-
-        // Gold accent light
-        const goldLight = new THREE.PointLight(0xD4A853, 0.6, 8);
-        goldLight.position.set(4, 2, 3);
-        scene.add(goldLight);
+    // ─── Materials ───────────────────────────────────────────────────────────
+    function buildMaterials() {
+        MAT.metal = new THREE.MeshStandardMaterial({ color: 0x222222, metalness: 0.9, roughness: 0.25 });
+        MAT.metalGold = new THREE.MeshStandardMaterial({ color: 0xC8922A, metalness: 0.95, roughness: 0.15 });
+        MAT.coal = new THREE.MeshStandardMaterial({ color: 0x1A1A1A, roughness: 1.0 });
+        MAT.ember = new THREE.MeshStandardMaterial({ color: 0xFF3300, emissive: 0xFF2200, emissiveIntensity: 1.2, roughness: 1.0 });
+        MAT.ground = new THREE.MeshStandardMaterial({ color: 0x0D0D0D, roughness: 1.0 });
     }
 
-    function createGrill() {
-        // Grill base — circular platform
-        const grillGeometry = new THREE.CylinderGeometry(4, 4.2, 0.3, 32);
-        const grillMaterial = new THREE.MeshStandardMaterial({
-            color: 0x2A2A2A,
-            metalness: 0.8,
-            roughness: 0.3,
-        });
-        const grill = new THREE.Mesh(grillGeometry, grillMaterial);
-        grill.position.y = 0;
-        grill.receiveShadow = true;
-        scene.add(grill);
+    // ─── Lighting ────────────────────────────────────────────────────────────
+    function setupLighting() {
+        scene.add(new THREE.AmbientLight(0x1A1208, 1.5));
 
-        // Grill grate lines
-        const grateMaterial = new THREE.MeshStandardMaterial({
-            color: 0x3A3A3A,
-            metalness: 0.9,
-            roughness: 0.2,
+        // Main warm key light
+        const key = new THREE.DirectionalLight(0xFFE4AA, 1.2);
+        key.position.set(4, 10, 6);
+        key.castShadow = true;
+        key.shadow.mapSize.set(2048, 2048);
+        key.shadow.camera.near = 0.5;
+        key.shadow.camera.far  = 40;
+        key.shadow.camera.left = -10;
+        key.shadow.camera.right = 10;
+        key.shadow.camera.top = 10;
+        key.shadow.camera.bottom = -10;
+        key.shadow.bias = -0.002;
+        scene.add(key);
+
+        // Cold fill from opposite side
+        const fill = new THREE.DirectionalLight(0x6688AA, 0.3);
+        fill.position.set(-6, 4, -5);
+        scene.add(fill);
+
+        // Three dynamic fire lights that flicker
+        const firePositions = [
+            { x:  0.8, y: 0.5, z:  0.5 },
+            { x: -0.8, y: 0.4, z: -0.5 },
+            { x:  0.2, y: 0.6, z: -0.8 },
+        ];
+        firePositions.forEach(pos => {
+            const fl = new THREE.PointLight(0xFF5500, 3.5, 7);
+            fl.position.set(pos.x, pos.y, pos.z);
+            scene.add(fl);
+            fireLights.push({ light: fl, baseIntensity: 3.5, offset: Math.random() * Math.PI * 2 });
         });
 
-        for (let i = -3; i <= 3; i += 0.5) {
-            const bar = new THREE.Mesh(
-                new THREE.BoxGeometry(7, 0.05, 0.08),
-                grateMaterial
-            );
-            bar.position.set(0, 0.2, i);
-            bar.receiveShadow = true;
-            scene.add(bar);
-        }
-
-        // Grill rim
-        const rimGeometry = new THREE.TorusGeometry(4.1, 0.1, 8, 64);
-        const rimMaterial = new THREE.MeshStandardMaterial({
-            color: 0xD4A853,
-            metalness: 0.9,
-            roughness: 0.1,
-        });
-        const rim = new THREE.Mesh(rimGeometry, rimMaterial);
-        rim.rotation.x = Math.PI / 2;
-        rim.position.y = 0.2;
+        // Gold rim
+        const rim = new THREE.PointLight(0xD4A853, 1.2, 14);
+        rim.position.set(5, 4, 4);
         scene.add(rim);
 
-        // Ground plane
-        const groundGeometry = new THREE.PlaneGeometry(50, 50);
-        const groundMaterial = new THREE.MeshStandardMaterial({
-            color: 0x0A0A0A,
-            roughness: 1.0,
-        });
-        const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+        // Red accent
+        const accent = new THREE.PointLight(0xC44536, 0.6, 12);
+        accent.position.set(-5, 3, -5);
+        scene.add(accent);
+    }
+
+    // ─── Ground ──────────────────────────────────────────────────────────────
+    function createGround() {
+        const ground = new THREE.Mesh(
+            new THREE.PlaneGeometry(60, 60),
+            MAT.ground
+        );
         ground.rotation.x = -Math.PI / 2;
-        ground.position.y = -0.5;
+        ground.position.y = -0.52;
         ground.receiveShadow = true;
         scene.add(ground);
     }
 
+    // ─── Grill ───────────────────────────────────────────────────────────────
+    function createGrill() {
+        const grillGroup = new THREE.Group();
+
+        // Outer bowl (deep kettle shape)
+        const bowlGeo = new THREE.SphereGeometry(4.4, 48, 32, 0, Math.PI * 2, 0, Math.PI * 0.55);
+        const bowlMat = new THREE.MeshStandardMaterial({ color: 0x181818, metalness: 0.7, roughness: 0.4, side: THREE.DoubleSide });
+        const bowl = new THREE.Mesh(bowlGeo, bowlMat);
+        bowl.rotation.x = Math.PI;
+        bowl.position.y = -0.1;
+        bowl.receiveShadow = true;
+        grillGroup.add(bowl);
+
+        // Inner coal bed (flat disk with emissive glow)
+        const coalBase = new THREE.Mesh(
+            new THREE.CylinderGeometry(3.5, 3.5, 0.12, 48),
+            new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 1.0, emissive: 0x220800, emissiveIntensity: 0.4 })
+        );
+        coalBase.position.y = -0.38;
+        coalBase.receiveShadow = true;
+        grillGroup.add(coalBase);
+
+        // Scattered coal lumps
+        for (let i = 0; i < 30; i++) {
+            const r = Math.random() * 3.0;
+            const a = Math.random() * Math.PI * 2;
+            const coal = new THREE.Mesh(
+                new THREE.DodecahedronGeometry(0.12 + Math.random() * 0.14, 0),
+                Math.random() > 0.35 ? MAT.ember : MAT.coal
+            );
+            coal.position.set(Math.cos(a) * r, -0.3 + Math.random() * 0.08, Math.sin(a) * r);
+            coal.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
+            grillGroup.add(coal);
+        }
+
+        // Grate — two layers of perpendicular bars
+        const grateMat = new THREE.MeshStandardMaterial({ color: 0x303030, metalness: 0.85, roughness: 0.3 });
+        const grateGroup = new THREE.Group();
+        for (let i = -3.2; i <= 3.2; i += 0.45) {
+            const barH = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 7.2, 8), grateMat);
+            barH.rotation.z = Math.PI / 2;
+            barH.position.set(0, 0, i);
+            grateGroup.add(barH);
+
+            const barV = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 7.2, 8), grateMat);
+            barV.position.set(i, 0, 0);
+            grateGroup.add(barV);
+        }
+        // Clip grate to circle
+        grateGroup.position.y = 0.18;
+        grillGroup.add(grateGroup);
+
+        // Gold rim ring
+        const rim = new THREE.Mesh(
+            new THREE.TorusGeometry(4.3, 0.13, 12, 80),
+            MAT.metalGold
+        );
+        rim.rotation.x = Math.PI / 2;
+        rim.position.y = 0.22;
+        grillGroup.add(rim);
+
+        // Three legs
+        for (let i = 0; i < 3; i++) {
+            const angle = (i / 3) * Math.PI * 2;
+            const leg = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.07, 0.05, 3.0, 8),
+                MAT.metal
+            );
+            leg.position.set(Math.cos(angle) * 3.8, -1.8, Math.sin(angle) * 3.8);
+            leg.rotation.z = Math.sin(angle) * 0.22;
+            leg.rotation.x = -Math.cos(angle) * 0.22;
+            leg.castShadow = true;
+            grillGroup.add(leg);
+
+            // Foot
+            const foot = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.08, 12), MAT.metal);
+            foot.position.set(Math.cos(angle) * 4.3, -3.3, Math.sin(angle) * 4.3);
+            grillGroup.add(foot);
+        }
+
+        scene.add(grillGroup);
+    }
+
+    // ─── Food Items ──────────────────────────────────────────────────────────
     function createFoodItems() {
         FOOD_CATEGORIES.forEach((item, index) => {
-            let mesh;
+            const group = new THREE.Group();
 
             switch (item.shape) {
-                case 'mixed':
-                    mesh = createMixedGrill(item.color);
-                    break;
-                case 'cylinder':
-                    mesh = createKebab(item.color);
-                    break;
-                case 'sphere':
-                    mesh = createFalafel(item.color);
-                    break;
-                case 'burger':
-                    mesh = createBurger(item.color);
-                    break;
-                case 'wrap':
-                    mesh = createWrap(item.color);
-                    break;
-                case 'bowl':
-                    mesh = createBowl(item.color);
-                    break;
-                case 'fries':
-                    mesh = createFries(item.color);
-                    break;
-                case 'plate':
-                    mesh = createPlate(item.color);
-                    break;
-                case 'glass':
-                    mesh = createGlass(item.color);
-                    break;
-                default:
-                    mesh = createDefaultItem(item.color);
+                case 'mixed':   buildMixedGrill(group, item.color);  break;
+                case 'kebab':   buildKebab(group, item.color);       break;
+                case 'falafel': buildFalafel(group, item.color);     break;
+                case 'burger':  buildBurger(group, item.color);      break;
+                case 'wrap':    buildWrap(group, item.color);        break;
+                case 'bowl':    buildBowl(group, item.color);        break;
+                case 'fries':   buildFries(group, item.color);       break;
+                case 'plate':   buildPlate(group, item.color);       break;
+                case 'glass':   buildGlass(group, item.color);       break;
             }
 
-            mesh.position.set(item.position.x, item.position.y, item.position.z);
-            mesh.userData = { category: item.name, index: index };
-            mesh.castShadow = true;
-
-            // Add glow ring beneath each item
-            const glowRing = new THREE.Mesh(
-                new THREE.RingGeometry(0.4, 0.6, 32),
-                new THREE.MeshBasicMaterial({ color: item.color, transparent: true, opacity: 0.3, side: THREE.DoubleSide })
+            // Gold glow ring on grate
+            const ring = new THREE.Mesh(
+                new THREE.RingGeometry(0.42, 0.68, 40),
+                new THREE.MeshBasicMaterial({ color: item.color, transparent: true, opacity: 0.25, side: THREE.DoubleSide, depthWrite: false })
             );
-            glowRing.rotation.x = -Math.PI / 2;
-            glowRing.position.y = -0.3;
-            mesh.add(glowRing);
+            ring.rotation.x = -Math.PI / 2;
+            ring.position.y = -0.25;
+            group.add(ring);
 
-            // Add floating label
-            const label = createLabel(item.name);
-            label.position.y = 1.2;
-            mesh.add(label);
+            // Floating label
+            group.add(createLabel(item.name));
 
-            scene.add(mesh);
-            foodItems.push(mesh);
+            group.position.set(item.position.x, item.position.y, item.position.z);
+            group.userData = { category: item.name, index, baseY: item.position.y };
+            group.castShadow = true;
+
+            scene.add(group);
+            foodItems.push(group);
         });
     }
 
-    function createMixedGrill(color) {
-        const group = new THREE.Group();
-        // Multiple skewers
-        for (let i = -0.5; i <= 0.5; i += 0.5) {
-            const skewer = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.03, 0.03, 2, 8),
-                new THREE.MeshStandardMaterial({ color: 0x8B4513, metalness: 0.3, roughness: 0.7 })
-            );
-            skewer.rotation.z = Math.PI / 2;
-            skewer.position.set(0, 0, i);
-            group.add(skewer);
+    // ─── Food Builders ───────────────────────────────────────────────────────
 
-            // Meat pieces on skewer
-            for (let j = -0.6; j <= 0.6; j += 0.4) {
-                const meat = new THREE.Mesh(
-                    new THREE.BoxGeometry(0.25, 0.2, 0.25),
-                    new THREE.MeshStandardMaterial({ color: color, roughness: 0.6 })
+    function mat(color, rough, metal, emissive, emissiveI) {
+        return new THREE.MeshStandardMaterial({
+            color:            color,
+            roughness:        rough  ?? 0.65,
+            metalness:        metal  ?? 0.0,
+            emissive:         emissive  ? new THREE.Color(emissive) : undefined,
+            emissiveIntensity: emissiveI ?? 0,
+        });
+    }
+
+    function buildMixedGrill(g, color) {
+        const skewMat = mat(0x9C6B3C, 0.55, 0.3);
+        const meatMat = mat(color,    0.55, 0.0);
+        const charMat = mat(0x2A1A0A, 0.9,  0.0);
+
+        for (let s = -0.55; s <= 0.55; s += 0.55) {
+            // Skewer rod
+            const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.022, 2.4, 8), skewMat);
+            rod.rotation.z = Math.PI / 2;
+            rod.position.z = s;
+            g.add(rod);
+
+            // Meat chunks along skewer
+            for (let j = -0.75; j <= 0.75; j += 0.38) {
+                const size = 0.18 + Math.random() * 0.06;
+                const chunk = new THREE.Mesh(
+                    new THREE.BoxGeometry(size * 1.4, size, size),
+                    Math.random() > 0.7 ? charMat : meatMat
                 );
-                meat.position.set(j, 0, i);
-                meat.rotation.y = Math.random() * 0.3;
-                group.add(meat);
+                chunk.position.set(j, (Math.random() - 0.5) * 0.06, s);
+                chunk.rotation.set(0, Math.random() * 0.4 - 0.2, Math.random() * 0.2);
+                g.add(chunk);
             }
         }
-        return group;
-    }
 
-    function createKebab(color) {
-        const group = new THREE.Group();
-        // Vertical döner pillar
-        const pillar = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.3, 0.4, 1.5, 12),
-            new THREE.MeshStandardMaterial({ color: color, roughness: 0.5 })
-        );
-        group.add(pillar);
-        // Top cap
-        const cap = new THREE.Mesh(
-            new THREE.SphereGeometry(0.3, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2),
-            new THREE.MeshStandardMaterial({ color: 0xCC8833, roughness: 0.4 })
-        );
-        cap.position.y = 0.75;
-        group.add(cap);
-        return group;
-    }
-
-    function createFalafel(color) {
-        const group = new THREE.Group();
-        // Multiple falafel balls
-        const positions = [
-            [0, 0, 0], [-0.3, 0, 0.3], [0.3, 0, 0.3],
-            [0, 0, -0.3], [0.15, 0.3, 0.1]
-        ];
-        positions.forEach(pos => {
-            const ball = new THREE.Mesh(
-                new THREE.SphereGeometry(0.2, 16, 16),
-                new THREE.MeshStandardMaterial({ color: color, roughness: 0.7 })
-            );
-            ball.position.set(...pos);
-            group.add(ball);
+        // Grilled vegetables between skewers
+        const vegMat = mat(0x3A7A1A, 0.8);
+        const pepMat = mat(0xCC3300, 0.7);
+        [[-0.28, 0.1, 0], [0.28, 0.1, 0]].forEach(([x, y, z]) => {
+            const veg = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.12, 0.14), Math.random() > 0.5 ? vegMat : pepMat);
+            veg.position.set(x, y, z);
+            veg.rotation.y = Math.random();
+            g.add(veg);
         });
-        return group;
     }
 
-    function createBurger(color) {
-        const group = new THREE.Group();
+    function buildKebab(g, color) {
+        // Vertical rotating döner cone — layered slices
+        const coneBase = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.28, 0.42, 1.6, 20),
+            mat(color, 0.55)
+        );
+        g.add(coneBase);
+
+        // Layered rings for texture
+        for (let y = -0.65; y <= 0.65; y += 0.2) {
+            const ring = new THREE.Mesh(
+                new THREE.TorusGeometry(0.32 - y * 0.06, 0.04, 6, 24),
+                mat(y > 0.3 ? 0xC86030 : color, 0.7)
+            );
+            ring.position.y = y;
+            g.add(ring);
+        }
+
+        // Skewer spike
+        const spike = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.025, 0.015, 2.2, 8),
+            mat(0xAAAAAA, 0.2, 0.9)
+        );
+        g.add(spike);
+
+        // Decorative top
+        const cap = new THREE.Mesh(
+            new THREE.SphereGeometry(0.28, 16, 10, 0, Math.PI * 2, 0, Math.PI * 0.55),
+            mat(0xC88030, 0.45)
+        );
+        cap.position.y = 0.8;
+        g.add(cap);
+    }
+
+    function buildFalafel(g, color) {
+        const positions = [
+            [ 0,    0,    0   ],
+            [-0.32, 0,    0.28],
+            [ 0.32, 0,    0.28],
+            [ 0,    0,   -0.34],
+            [ 0.16, 0.3,  0.12],
+        ];
+        const sesame = mat(0xE8D8A0, 0.9);
+        positions.forEach(([x, y, z], i) => {
+            // Ball
+            const ball = new THREE.Mesh(
+                new THREE.SphereGeometry(0.19, 20, 20),
+                mat(color, 0.75)
+            );
+            ball.position.set(x, y, z);
+            g.add(ball);
+
+            // Sesame specks
+            for (let s = 0; s < 5; s++) {
+                const speck = new THREE.Mesh(new THREE.SphereGeometry(0.015, 4, 4), sesame);
+                const theta = Math.random() * Math.PI * 2;
+                const phi   = Math.random() * Math.PI;
+                speck.position.set(
+                    x + 0.19 * Math.sin(phi) * Math.cos(theta),
+                    y + 0.19 * Math.cos(phi),
+                    z + 0.19 * Math.sin(phi) * Math.sin(theta)
+                );
+                g.add(speck);
+            }
+        });
+
+        // Tahini drizzle suggestion
+        const sauceGeo = new THREE.CylinderGeometry(0.28, 0.26, 0.04, 24);
+        const sauce = new THREE.Mesh(sauceGeo, mat(0xF0E0A0, 0.5));
+        sauce.position.y = -0.22;
+        g.add(sauce);
+    }
+
+    function buildBurger(g, color) {
+        const bunMat    = mat(0xD4A050, 0.8);
+        const bunTopMat = mat(0xC89040, 0.75);
+        const pattyMat  = mat(color,    0.55);
+        const cheeseMat = mat(0xFFCC33, 0.6);
+        const lettMat   = mat(0x3DAA22, 0.9);
+        const tomMat    = mat(0xCC2211, 0.7);
+        const sauceMat  = mat(0xDD4411, 0.8);
+
         // Bottom bun
-        const bunBottom = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.4, 0.45, 0.15, 16),
-            new THREE.MeshStandardMaterial({ color: 0xDEB887, roughness: 0.8 })
-        );
-        bunBottom.position.y = -0.2;
-        group.add(bunBottom);
+        const bunB = new THREE.Mesh(new THREE.CylinderGeometry(0.46, 0.5, 0.18, 24), bunMat);
+        bunB.position.y = -0.28;
+        g.add(bunB);
+
+        // Sauce on bottom bun
+        const sauce = new THREE.Mesh(new THREE.CylinderGeometry(0.43, 0.43, 0.03, 20), sauceMat);
+        sauce.position.y = -0.16;
+        g.add(sauce);
+
+        // Lettuce (slightly ruffled disk)
+        const lett = new THREE.Mesh(new THREE.CylinderGeometry(0.52, 0.48, 0.04, 24), lettMat);
+        lett.position.y = -0.1;
+        g.add(lett);
+
+        // Tomato slice
+        const tom = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.45, 0.055, 20), tomMat);
+        tom.position.y = -0.03;
+        g.add(tom);
+
         // Patty
-        const patty = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.42, 0.42, 0.12, 16),
-            new THREE.MeshStandardMaterial({ color: color, roughness: 0.6 })
+        const patty = new THREE.Mesh(new THREE.CylinderGeometry(0.44, 0.46, 0.15, 24), pattyMat);
+        patty.position.y = 0.1;
+        g.add(patty);
+
+        // Cheese slice (slightly overhanging)
+        const cheese = new THREE.Mesh(new THREE.BoxGeometry(0.98, 0.04, 0.98), cheeseMat);
+        cheese.position.y = 0.2;
+        cheese.rotation.y = Math.PI / 5;
+        g.add(cheese);
+
+        // Top bun (dome)
+        const bunT = new THREE.Mesh(
+            new THREE.SphereGeometry(0.46, 24, 18, 0, Math.PI * 2, 0, Math.PI * 0.52),
+            bunTopMat
         );
-        patty.position.y = 0;
-        group.add(patty);
-        // Lettuce
-        const lettuce = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.44, 0.4, 0.05, 16),
-            new THREE.MeshStandardMaterial({ color: 0x4CAF50, roughness: 0.9 })
-        );
-        lettuce.position.y = 0.1;
-        group.add(lettuce);
-        // Top bun
-        const bunTop = new THREE.Mesh(
-            new THREE.SphereGeometry(0.4, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2),
-            new THREE.MeshStandardMaterial({ color: 0xDEB887, roughness: 0.8 })
-        );
-        bunTop.position.y = 0.2;
-        group.add(bunTop);
-        return group;
+        bunT.position.y = 0.27;
+        g.add(bunT);
+
+        // Sesame seeds on top bun
+        const seedMat = mat(0xF0E090, 0.9);
+        for (let i = 0; i < 8; i++) {
+            const seed = new THREE.Mesh(new THREE.SphereGeometry(0.022, 5, 5), seedMat);
+            const a = (i / 8) * Math.PI * 2 + Math.random() * 0.3;
+            const r = 0.2 + Math.random() * 0.12;
+            seed.position.set(Math.cos(a) * r, 0.53, Math.sin(a) * r);
+            g.add(seed);
+        }
     }
 
-    function createWrap(color) {
-        const group = new THREE.Group();
-        // Cone shape for wrap
-        const wrap = new THREE.Mesh(
-            new THREE.ConeGeometry(0.35, 1.2, 12),
-            new THREE.MeshStandardMaterial({ color: color, roughness: 0.7 })
+    function buildWrap(g, color) {
+        // Flatbread cone
+        const cone = new THREE.Mesh(
+            new THREE.ConeGeometry(0.38, 1.4, 16, 4, true),
+            mat(color, 0.75)
         );
-        wrap.rotation.z = Math.PI / 4;
-        group.add(wrap);
-        // Filling peeking out
-        const filling = new THREE.Mesh(
-            new THREE.SphereGeometry(0.3, 12, 12),
-            new THREE.MeshStandardMaterial({ color: 0x6B8E23, roughness: 0.8 })
-        );
-        filling.position.set(0.3, 0.4, 0);
-        filling.scale.set(1, 0.6, 1);
-        group.add(filling);
-        return group;
+        cone.rotation.z = -Math.PI / 2.5;
+        cone.position.set(0.1, 0.1, 0);
+        g.add(cone);
+
+        // Visible filling layers at the open top
+        const fillings = [
+            { c: 0x6E3C10, y: 0.45, z:  0.05 }, // meat
+            { c: 0x2A8020, y: 0.5,  z: -0.05 }, // salad
+            { c: 0xF0E090, y: 0.42, z:  0.1  }, // sauce
+            { c: 0xCC2211, y: 0.48, z:  0.0  }, // tomato
+        ];
+        fillings.forEach(({ c, y, z }) => {
+            const fill = new THREE.Mesh(
+                new THREE.SphereGeometry(0.14, 10, 8),
+                mat(c, 0.8)
+            );
+            fill.scale.y = 0.6;
+            fill.position.set(0.22, y, z);
+            g.add(fill);
+        });
     }
 
-    function createBowl(color) {
-        const group = new THREE.Group();
-        // Bowl
+    function buildBowl(g, color) {
+        // Bowl body (half-sphere)
         const bowl = new THREE.Mesh(
-            new THREE.SphereGeometry(0.45, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2),
-            new THREE.MeshStandardMaterial({ color: 0xF5F0E8, roughness: 0.4, metalness: 0.1 })
+            new THREE.SphereGeometry(0.5, 28, 16, 0, Math.PI * 2, Math.PI * 0.5, Math.PI * 0.5),
+            mat(0xF0ECE0, 0.35, 0.15)
         );
         bowl.rotation.x = Math.PI;
-        group.add(bowl);
-        // Contents
-        const contents = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.4, 0.35, 0.2, 16),
-            new THREE.MeshStandardMaterial({ color: color, roughness: 0.8 })
+        bowl.position.y = -0.05;
+        g.add(bowl);
+
+        // Rim
+        const rim = new THREE.Mesh(
+            new THREE.TorusGeometry(0.5, 0.03, 8, 40),
+            mat(0xE8E0D0, 0.3, 0.1)
         );
-        contents.position.y = 0.1;
-        group.add(contents);
-        return group;
+        rim.rotation.x = Math.PI / 2;
+        rim.position.y = 0.01;
+        g.add(rim);
+
+        // Hummus/dip filling
+        const fill = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.44, 0.38, 0.16, 28),
+            mat(color, 0.75)
+        );
+        fill.position.y = 0.06;
+        g.add(fill);
+
+        // Olive oil drizzle (gold pool)
+        const drizzle = new THREE.Mesh(
+            new THREE.CircleGeometry(0.18, 20),
+            mat(0xD4A030, 0.4)
+        );
+        drizzle.rotation.x = -Math.PI / 2;
+        drizzle.position.y = 0.15;
+        g.add(drizzle);
+
+        // Paprika sprinkle
+        for (let i = 0; i < 5; i++) {
+            const s = new THREE.Mesh(new THREE.SphereGeometry(0.025, 5, 5), mat(0xCC3300, 0.8));
+            const a = (i / 5) * Math.PI * 2;
+            s.position.set(Math.cos(a) * 0.22, 0.16, Math.sin(a) * 0.22);
+            g.add(s);
+        }
+
+        // Pita bread half
+        const pita = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.3, 0.28, 0.06, 12, 1, false, 0, Math.PI),
+            mat(0xE8C880, 0.8)
+        );
+        pita.position.set(0.38, 0.08, 0);
+        pita.rotation.y = Math.PI / 6;
+        g.add(pita);
     }
 
-    function createFries(color) {
-        const group = new THREE.Group();
-        // Container
-        const container = new THREE.Mesh(
-            new THREE.BoxGeometry(0.5, 0.6, 0.3),
-            new THREE.MeshStandardMaterial({ color: 0xC44536, roughness: 0.5 })
+    function buildFries(g, color) {
+        // Red container box
+        const box = new THREE.Mesh(
+            new THREE.BoxGeometry(0.55, 0.7, 0.4),
+            mat(0xCC1111, 0.5)
         );
-        group.add(container);
-        // Fries sticking out
-        for (let i = 0; i < 8; i++) {
+        g.add(box);
+
+        // White stripe logo-like stripe
+        const stripe = new THREE.Mesh(
+            new THREE.BoxGeometry(0.56, 0.12, 0.02),
+            mat(0xFFFFFF, 0.7)
+        );
+        stripe.position.set(0, 0.1, 0.21);
+        g.add(stripe);
+
+        // Fries bundle
+        const fryMat = mat(color, 0.65);
+        const darkFryMat = mat(0xBB8B20, 0.7); // slightly darker = more fried
+        for (let i = 0; i < 12; i++) {
             const fry = new THREE.Mesh(
-                new THREE.BoxGeometry(0.06, 0.5, 0.06),
-                new THREE.MeshStandardMaterial({ color: color, roughness: 0.7 })
+                new THREE.BoxGeometry(0.06, 0.45 + Math.random() * 0.2, 0.055),
+                Math.random() > 0.3 ? fryMat : darkFryMat
             );
             fry.position.set(
-                (Math.random() - 0.5) * 0.3,
-                0.4 + Math.random() * 0.2,
-                (Math.random() - 0.5) * 0.2
+                (Math.random() - 0.5) * 0.38,
+                0.5 + Math.random() * 0.12,
+                (Math.random() - 0.5) * 0.26
             );
             fry.rotation.set(
-                (Math.random() - 0.5) * 0.3,
+                (Math.random() - 0.5) * 0.35,
                 Math.random() * Math.PI,
-                (Math.random() - 0.5) * 0.3
+                (Math.random() - 0.5) * 0.25
             );
-            group.add(fry);
+            g.add(fry);
         }
-        return group;
+
+        // Sauce dip cup
+        const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.1, 0.18, 14), mat(0xF5F5F5, 0.4));
+        cup.position.set(0.5, -0.22, 0);
+        g.add(cup);
+        const sauce = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.1, 0.08, 14), mat(0xEE3311, 0.6));
+        sauce.position.set(0.5, -0.1, 0);
+        g.add(sauce);
     }
 
-    function createPlate(color) {
-        const group = new THREE.Group();
-        // Plate
+    function buildPlate(g, color) {
+        // Plate base
         const plate = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.5, 0.45, 0.08, 24),
-            new THREE.MeshStandardMaterial({ color: 0xF5F0E8, roughness: 0.3, metalness: 0.1 })
+            new THREE.CylinderGeometry(0.58, 0.52, 0.07, 32),
+            mat(0xF2EEE4, 0.3, 0.1)
         );
-        group.add(plate);
-        // Food items on plate
-        const item1 = new THREE.Mesh(
-            new THREE.SphereGeometry(0.15, 12, 12),
-            new THREE.MeshStandardMaterial({ color: color, roughness: 0.7 })
+        g.add(plate);
+
+        // Raised rim
+        const rim = new THREE.Mesh(
+            new THREE.TorusGeometry(0.56, 0.04, 8, 40),
+            mat(0xE8E2D8, 0.35, 0.1)
         );
-        item1.position.set(0.15, 0.15, 0);
-        item1.scale.y = 0.7;
-        group.add(item1);
+        rim.rotation.x = Math.PI / 2;
+        rim.position.y = 0.07;
+        g.add(rim);
+
+        // Main item (kibbeh / samosa shape)
+        const main = new THREE.Mesh(
+            new THREE.SphereGeometry(0.18, 14, 10),
+            mat(color, 0.6)
+        );
+        main.scale.set(1.3, 0.85, 1.0);
+        main.position.set(0.14, 0.15, 0.05);
+        g.add(main);
+
+        // Second item
         const item2 = new THREE.Mesh(
-            new THREE.BoxGeometry(0.2, 0.1, 0.3),
-            new THREE.MeshStandardMaterial({ color: 0xD4A853, roughness: 0.6 })
+            new THREE.ConeGeometry(0.12, 0.28, 8),
+            mat(0xD4B060, 0.65)
         );
-        item2.position.set(-0.15, 0.1, 0.1);
-        group.add(item2);
-        return group;
+        item2.position.set(-0.18, 0.2, 0.1);
+        item2.rotation.z = Math.PI / 2.5;
+        g.add(item2);
+
+        // Herb garnish (green dots)
+        const herb = mat(0x22AA44, 0.9);
+        for (let i = 0; i < 6; i++) {
+            const h = new THREE.Mesh(new THREE.SphereGeometry(0.022, 5, 5), herb);
+            const a = (i / 6) * Math.PI * 2;
+            h.position.set(Math.cos(a) * 0.32, 0.1, Math.sin(a) * 0.32);
+            g.add(h);
+        }
+
+        // Sauce dot
+        const sauce = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.09, 0.03, 20), mat(0xCC8830, 0.6));
+        sauce.position.set(-0.2, 0.09, -0.22);
+        g.add(sauce);
     }
 
-    function createGlass(color) {
-        const group = new THREE.Group();
-        // Glass cylinder (transparent)
-        const glass = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.2, 0.15, 0.8, 16, 1, true),
-            new THREE.MeshStandardMaterial({
-                color: color, transparent: true, opacity: 0.4,
-                roughness: 0.1, metalness: 0.2, side: THREE.DoubleSide
-            })
-        );
-        group.add(glass);
-        // Liquid inside
+    function buildGlass(g, color) {
+        // Glass body (open cylinder)
+        const glassMat = new THREE.MeshStandardMaterial({
+            color: color, transparent: true, opacity: 0.28,
+            roughness: 0.05, metalness: 0.15, side: THREE.DoubleSide
+        });
+        const glass = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.17, 0.88, 20, 1, true), glassMat);
+        g.add(glass);
+
+        // Glass bottom disk
+        const bottom = new THREE.Mesh(new THREE.CircleGeometry(0.17, 20), glassMat);
+        bottom.rotation.x = Math.PI / 2;
+        bottom.position.y = -0.44;
+        g.add(bottom);
+
+        // Drink liquid (ayran / lemonade)
+        const liquidCol = color === 0x6ABADC ? 0xF5F0E0 : 0xCCEE44; // white for ayran, yellow-green for lemonade
         const liquid = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.18, 0.13, 0.6, 16),
-            new THREE.MeshStandardMaterial({ color: 0xF5F5DC, roughness: 0.3 })
+            new THREE.CylinderGeometry(0.2, 0.16, 0.7, 20),
+            mat(liquidCol, 0.3)
         );
         liquid.position.y = -0.05;
-        group.add(liquid);
-        return group;
-    }
+        g.add(liquid);
 
-    function createDefaultItem(color) {
-        return new THREE.Mesh(
-            new THREE.SphereGeometry(0.4, 16, 16),
-            new THREE.MeshStandardMaterial({ color: color, roughness: 0.5 })
+        // Ice cubes
+        const iceMat = mat(0xDDEEFF, 0.1, 0.0);
+        for (let i = 0; i < 3; i++) {
+            const ice = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.09, 0.09), iceMat);
+            ice.position.set(
+                (Math.random() - 0.5) * 0.22,
+                0.18 + Math.random() * 0.1,
+                (Math.random() - 0.5) * 0.22
+            );
+            ice.rotation.y = Math.random() * Math.PI;
+            g.add(ice);
+        }
+
+        // Mint garnish
+        const mintMat = mat(0x22CC66, 0.9);
+        const mint = new THREE.Mesh(new THREE.PlaneGeometry(0.18, 0.28), mintMat);
+        mint.position.set(0.1, 0.42, 0);
+        mint.rotation.z = -0.4;
+        g.add(mint);
+
+        // Straw
+        const straw = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.018, 0.018, 1.1, 8),
+            mat(0xFF6633, 0.5)
         );
+        straw.position.set(0.08, 0.2, 0.08);
+        straw.rotation.z = 0.2;
+        g.add(straw);
     }
 
+    // ─── Label ───────────────────────────────────────────────────────────────
     function createLabel(text) {
         const canvas = document.createElement('canvas');
-        canvas.width = 256;
-        canvas.height = 64;
+        canvas.width  = 320;
+        canvas.height = 80;
         const ctx = canvas.getContext('2d');
-        ctx.fillStyle = 'rgba(0,0,0,0)';
-        ctx.fillRect(0, 0, 256, 64);
-        ctx.font = '600 20px Inter, sans-serif';
+
+        ctx.clearRect(0, 0, 320, 80);
+        ctx.fillStyle = 'rgba(10,8,4,0.82)';
+        roundRect(ctx, 10, 14, 300, 52, 12);
+        ctx.fill();
+
+        ctx.strokeStyle = 'rgba(212,168,83,0.7)';
+        ctx.lineWidth = 1.5;
+        roundRect(ctx, 10, 14, 300, 52, 12);
+        ctx.stroke();
+
+        ctx.font = '600 18px Inter, sans-serif';
         ctx.fillStyle = '#D4A853';
         ctx.textAlign = 'center';
-        ctx.fillText(text, 128, 38);
+        ctx.textBaseline = 'middle';
+        ctx.fillText(text, 160, 40);
 
-        const texture = new THREE.CanvasTexture(canvas);
-        const material = new THREE.SpriteMaterial({ map: texture, transparent: true, opacity: 0.9 });
-        const sprite = new THREE.Sprite(material);
-        sprite.scale.set(2, 0.5, 1);
-        return sprite;
+        const texture  = new THREE.CanvasTexture(canvas);
+        const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true, depthWrite: false, side: THREE.DoubleSide });
+        const plane    = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 0.55), material);
+        plane.userData.isLabel = true;
+        plane.position.y = 1.5;
+        return plane;
     }
 
+    function roundRect(ctx, x, y, w, h, r) {
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.lineTo(x + w - r, y);
+        ctx.arcTo(x + w, y, x + w, y + r, r);
+        ctx.lineTo(x + w, y + h - r);
+        ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+        ctx.lineTo(x + r, y + h);
+        ctx.arcTo(x, y + h, x, y + h - r, r);
+        ctx.lineTo(x, y + r);
+        ctx.arcTo(x, y, x + r, y, r);
+        ctx.closePath();
+    }
+
+    // ─── Particles ───────────────────────────────────────────────────────────
     function createFireParticles() {
-        const geometry = new THREE.BufferGeometry();
-        const count = 100;
+        const count = 180;
         const positions = new Float32Array(count * 3);
-        const colors = new Float32Array(count * 3);
+        const colors    = new Float32Array(count * 3);
+        const sizes     = new Float32Array(count);
 
         for (let i = 0; i < count; i++) {
-            positions[i * 3] = (Math.random() - 0.5) * 6;
-            positions[i * 3 + 1] = Math.random() * 0.5;
-            positions[i * 3 + 2] = (Math.random() - 0.5) * 6;
-
+            const r = Math.sqrt(Math.random()) * 3.2;
+            const a = Math.random() * Math.PI * 2;
+            positions[i*3]   = Math.cos(a) * r;
+            positions[i*3+1] = Math.random() * 0.6;
+            positions[i*3+2] = Math.sin(a) * r;
             const t = Math.random();
-            colors[i * 3] = 1.0;
-            colors[i * 3 + 1] = 0.3 + t * 0.4;
-            colors[i * 3 + 2] = 0.0;
+            colors[i*3]   = 1.0;
+            colors[i*3+1] = 0.22 + t * 0.45;
+            colors[i*3+2] = 0.0;
+            sizes[i] = 0.04 + Math.random() * 0.06;
         }
 
-        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geo.setAttribute('color',    new THREE.BufferAttribute(colors,    3));
 
-        const material = new THREE.PointsMaterial({
-            size: 0.05,
-            vertexColors: true,
-            transparent: true,
-            opacity: 0.8,
-            blending: THREE.AdditiveBlending,
-        });
-
-        const particleSystem = new THREE.Points(geometry, material);
-        scene.add(particleSystem);
-        particles.push({ mesh: particleSystem, type: 'fire' });
+        fireParticles = new THREE.Points(geo, new THREE.PointsMaterial({
+            size: 0.07, vertexColors: true,
+            transparent: true, opacity: 0.85,
+            blending: THREE.AdditiveBlending, depthWrite: false,
+        }));
+        scene.add(fireParticles);
     }
 
-    function createAmbientParticles() {
-        const geometry = new THREE.BufferGeometry();
-        const count = 50;
+    function createSmokeParticles() {
+        const count = 60;
         const positions = new Float32Array(count * 3);
-
         for (let i = 0; i < count; i++) {
-            positions[i * 3] = (Math.random() - 0.5) * 20;
-            positions[i * 3 + 1] = Math.random() * 8;
-            positions[i * 3 + 2] = (Math.random() - 0.5) * 20;
+            const a = Math.random() * Math.PI * 2;
+            positions[i*3]   = Math.cos(a) * Math.random() * 2;
+            positions[i*3+1] = 0.5 + Math.random() * 3;
+            positions[i*3+2] = Math.sin(a) * Math.random() * 2;
         }
-
-        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-
-        const material = new THREE.PointsMaterial({
-            size: 0.03,
-            color: 0xD4A853,
-            transparent: true,
-            opacity: 0.4,
-            blending: THREE.AdditiveBlending,
-        });
-
-        const particleSystem = new THREE.Points(geometry, material);
-        scene.add(particleSystem);
-        particles.push({ mesh: particleSystem, type: 'ambient' });
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        smokeParticles = new THREE.Points(geo, new THREE.PointsMaterial({
+            size: 0.32, color: 0x888888,
+            transparent: true, opacity: 0.08,
+            depthWrite: false,
+        }));
+        scene.add(smokeParticles);
     }
 
+    function createEmberParticles() {
+        const count = 40;
+        const positions = new Float32Array(count * 3);
+        for (let i = 0; i < count; i++) {
+            const a = Math.random() * Math.PI * 2;
+            positions[i*3]   = Math.cos(a) * Math.random() * 4;
+            positions[i*3+1] = Math.random() * 5;
+            positions[i*3+2] = Math.sin(a) * Math.random() * 4;
+        }
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        emberParticles = new THREE.Points(geo, new THREE.PointsMaterial({
+            size: 0.04, color: 0xFF9900,
+            transparent: true, opacity: 0.9,
+            blending: THREE.AdditiveBlending, depthWrite: false,
+        }));
+        scene.add(emberParticles);
+    }
+
+    // ─── Animate ─────────────────────────────────────────────────────────────
     function animate() {
         animationId = requestAnimationFrame(animate);
-        time += 0.01;
+        time += 0.012;
 
-        // Update controls
         controls.update();
 
-        // Animate food items (gentle floating)
-        foodItems.forEach((item, i) => {
-            item.position.y = FOOD_CATEGORIES[i].position.y + Math.sin(time * 1.5 + i * 0.7) * 0.1;
-            item.rotation.y += 0.003;
+        // Flickering fire lights
+        fireLights.forEach(({ light, baseIntensity, offset }) => {
+            const flicker = Math.sin(time * 8 + offset) * 0.4 + Math.sin(time * 13 + offset) * 0.2;
+            light.intensity = baseIntensity + flicker;
         });
 
-        // Animate fire particles
-        particles.forEach(p => {
-            if (p.type === 'fire') {
-                const positions = p.mesh.geometry.attributes.position.array;
-                for (let i = 0; i < positions.length; i += 3) {
-                    positions[i + 1] += 0.02;
-                    if (positions[i + 1] > 2) {
-                        positions[i + 1] = 0;
-                        positions[i] = (Math.random() - 0.5) * 6;
-                        positions[i + 2] = (Math.random() - 0.5) * 6;
-                    }
+        // Float + gentle rotation on food items, keep labels facing camera
+        foodItems.forEach((item, i) => {
+            item.position.y = item.userData.baseY + Math.sin(time * 1.4 + i * 0.72) * 0.12;
+            item.rotation.y += 0.004;
+
+            for (const child of item.children) {
+                if (child.userData.isLabel) {
+                    child.quaternion.copy(camera.quaternion);
                 }
-                p.mesh.geometry.attributes.position.needsUpdate = true;
-            } else if (p.type === 'ambient') {
-                p.mesh.rotation.y += 0.001;
             }
         });
+
+        // Fire particles rise
+        if (fireParticles) {
+            const pos = fireParticles.geometry.attributes.position.array;
+            for (let i = 0; i < pos.length; i += 3) {
+                pos[i+1] += 0.025 + Math.random() * 0.01;
+                pos[i]   += (Math.random() - 0.5) * 0.012;
+                pos[i+2] += (Math.random() - 0.5) * 0.012;
+                if (pos[i+1] > 2.2) {
+                    const r = Math.sqrt(Math.random()) * 3.2;
+                    const a = Math.random() * Math.PI * 2;
+                    pos[i]   = Math.cos(a) * r;
+                    pos[i+1] = Math.random() * 0.2;
+                    pos[i+2] = Math.sin(a) * r;
+                }
+            }
+            fireParticles.geometry.attributes.position.needsUpdate = true;
+        }
+
+        // Smoke drifts upward
+        if (smokeParticles) {
+            const pos = smokeParticles.geometry.attributes.position.array;
+            for (let i = 0; i < pos.length; i += 3) {
+                pos[i+1] += 0.012;
+                pos[i]   += Math.sin(time + i) * 0.004;
+                if (pos[i+1] > 5) pos[i+1] = 0.3;
+            }
+            smokeParticles.geometry.attributes.position.needsUpdate = true;
+            smokeParticles.material.opacity = 0.06 + Math.sin(time * 0.5) * 0.02;
+        }
+
+        // Embers float up and drift
+        if (emberParticles) {
+            const pos = emberParticles.geometry.attributes.position.array;
+            for (let i = 0; i < pos.length; i += 3) {
+                pos[i+1] += 0.035;
+                pos[i]   += (Math.random() - 0.5) * 0.02;
+                pos[i+2] += (Math.random() - 0.5) * 0.02;
+                if (pos[i+1] > 5.5) {
+                    const a = Math.random() * Math.PI * 2;
+                    pos[i]   = Math.cos(a) * Math.random() * 3.5;
+                    pos[i+1] = Math.random() * 0.4;
+                    pos[i+2] = Math.sin(a) * Math.random() * 3.5;
+                }
+            }
+            emberParticles.geometry.attributes.position.needsUpdate = true;
+        }
 
         renderer.render(scene, camera);
     }
 
+    // ─── Interaction ─────────────────────────────────────────────────────────
     function onMouseClick(event) {
         const container = document.getElementById(containerId);
         const rect = container.getBoundingClientRect();
-        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+        mouse.x =  ((event.clientX - rect.left) / rect.width)  * 2 - 1;
+        mouse.y = -((event.clientY - rect.top)  / rect.height) * 2 + 1;
 
         raycaster.setFromCamera(mouse, camera);
-        const intersects = raycaster.intersectObjects(foodItems, true);
+        const hits = raycaster.intersectObjects(foodItems, true);
 
-        if (intersects.length > 0) {
-            let obj = intersects[0].object;
-            // Walk up to find the food item group
-            while (obj.parent && !obj.userData.category) {
-                obj = obj.parent;
-            }
+        if (hits.length > 0) {
+            let obj = hits[0].object;
+            while (obj.parent && !obj.userData.category) obj = obj.parent;
             if (obj.userData.category && blazorRef) {
                 blazorRef.invokeMethodAsync('OnFoodItemClicked', obj.userData.category);
-
-                // Visual feedback - pulse animation
-                const originalScale = obj.scale.clone();
-                obj.scale.multiplyScalar(1.2);
-                setTimeout(() => {
-                    obj.scale.copy(originalScale);
-                }, 200);
+                // Pulse feedback
+                obj.scale.set(1.25, 1.25, 1.25);
+                setTimeout(() => obj.scale.set(1, 1, 1), 220);
             }
         }
     }
 
-    let hoveredItem = null;
     function onMouseMove(event) {
         const container = document.getElementById(containerId);
         const rect = container.getBoundingClientRect();
-        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+        mouse.x =  ((event.clientX - rect.left) / rect.width)  * 2 - 1;
+        mouse.y = -((event.clientY - rect.top)  / rect.height) * 2 + 1;
 
         raycaster.setFromCamera(mouse, camera);
-        const intersects = raycaster.intersectObjects(foodItems, true);
+        const hits = raycaster.intersectObjects(foodItems, true);
 
-        if (intersects.length > 0) {
+        if (hits.length > 0) {
             container.style.cursor = 'pointer';
-            let obj = intersects[0].object;
-            while (obj.parent && !obj.userData.category) {
-                obj = obj.parent;
-            }
+            let obj = hits[0].object;
+            while (obj.parent && !obj.userData.category) obj = obj.parent;
             if (obj !== hoveredItem) {
-                if (hoveredItem) {
-                    // Reset previous
-                    hoveredItem.scale.set(1, 1, 1);
-                }
+                if (hoveredItem) hoveredItem.scale.set(1, 1, 1);
                 hoveredItem = obj;
-                hoveredItem.scale.set(1.1, 1.1, 1.1);
+                hoveredItem.scale.set(1.15, 1.15, 1.15);
             }
         } else {
             container.style.cursor = 'grab';
-            if (hoveredItem) {
-                hoveredItem.scale.set(1, 1, 1);
-                hoveredItem = null;
-            }
+            if (hoveredItem) { hoveredItem.scale.set(1, 1, 1); hoveredItem = null; }
         }
     }
 
     function onResize() {
         const container = document.getElementById(containerId);
-        if (!container) return;
+        if (!container || !camera) return;
         camera.aspect = container.clientWidth / container.clientHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(container.clientWidth, container.clientHeight);
     }
 
     function dispose() {
-        if (animationId) {
-            cancelAnimationFrame(animationId);
-        }
+        if (animationId) cancelAnimationFrame(animationId);
         window.removeEventListener('resize', onResize);
-        if (renderer) {
-            renderer.dispose();
-        }
+        if (renderer) renderer.dispose();
     }
 
     return { init, dispose };

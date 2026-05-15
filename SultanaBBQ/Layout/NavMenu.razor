@@ -1,21 +1,25 @@
 ﻿@inject IJSRuntime JS
 
 <nav class="nav @(scrolled ? "scrolled" : "")">
-    <a class="nav-logo" href="#">Sultana BBQ</a>
+    <a class="nav-logo" href="/">Sultana BBQ</a>
 
     <div class="nav-links @(mobileOpen ? "open" : "")">
-        <a href="#home" @onclick="CloseMenu" @onclick:preventDefault="false">Home</a>
-        <a href="#about" @onclick="CloseMenu" @onclick:preventDefault="false">Over Ons</a>
-        <a href="#menu" @onclick="CloseMenu" @onclick:preventDefault="false">Menu</a>
-        <a href="#reviews" @onclick="CloseMenu" @onclick:preventDefault="false">Reviews</a>
-        <a href="#contact" @onclick="CloseMenu" @onclick:preventDefault="false">Contact</a>
+        <a href="/#home" @onclick="CloseMenu" @onclick:preventDefault="false">Home</a>
+        <a href="/menu" @onclick="CloseMenu" @onclick:preventDefault="false">Menu</a>
+        <a href="/afhalen-bezorgen" @onclick="CloseMenu" @onclick:preventDefault="false">Afhalen</a>
+        <a href="/cocktail-builder" @onclick="CloseMenu" @onclick:preventDefault="false">Cocktails</a>
+        <a href="/halal-restaurant-utrecht" @onclick="CloseMenu" @onclick:preventDefault="false">Halal</a>
+        <a href="/bbq-restaurant-overvecht" @onclick="CloseMenu" @onclick:preventDefault="false">BBQ</a>
+        <a href="/contact" @onclick="CloseMenu" @onclick:preventDefault="false">Contact</a>
+        <a href="/reserveren" @onclick="CloseMenu" @onclick:preventDefault="false">Reserveren</a>
+        <a class="nav-mobile-order-btn" href="/bestellen" @onclick="CloseMenu" @onclick:preventDefault="false">Bestellen</a>
     </div>
 
-    <a class="nav-order-btn" href="https://bistroo.nl/utrecht/restaurants/sultana-bbq" target="_blank" rel="noopener noreferrer">
+    <a class="nav-order-btn" href="/bestellen" @onclick="CloseMenu" @onclick:preventDefault="false">
         Bestellen
     </a>
 
-    <button class="nav-hamburger" @onclick="ToggleMenu" aria-label="Menu openen">
+    <button class="nav-hamburger @(mobileOpen ? "open" : "")" @onclick="ToggleMenu" aria-label="Menu openen">
         <span></span>
         <span></span>
         <span></span>

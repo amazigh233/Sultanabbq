@@ -1,0 +1,305 @@
+@page "/bestellen"
+@page "/afhalen"
+@using System.Text
+@using SultanaBBQ.Services
+@inject IJSRuntime JS
+
+<SeoHead Title="Bestellen en afhalen Sultana BBQ Utrecht | Halal BBQ Overvecht"
+         Description="Bestel halal BBQ, mixed grill, schotels, kipgerechten en burgers bij Sultana BBQ in Utrecht Overvecht. Kies afhalen of bezorgen en verstuur je bestelling."
+         Path="/bestellen"
+         JsonLd="@JsonLd" />
+
+<section class="order-page">
+    <div class="order-hero">
+        <p class="hero-subtitle">Afhalen &amp; bezorgen</p>
+        <h1>Bestel <span>Sultana BBQ</span></h1>
+        <p>Stel je halal BBQ-bestelling samen voor afhalen of bezorgen in Utrecht Overvecht.</p>
+    </div>
+
+    <div class="order-seo-intro">
+        <h2>Halal BBQ afhalen in Utrecht Overvecht</h2>
+        <p>
+            Kies uit mixed grill, grillgerechten, kip, vlees, burgers, schotels,
+            bijgerechten en dranken. Deze bestelpagina helpt je snel een duidelijke
+            bestelling door te geven. Voor grotere groepen of vragen over allergenen
+            kun je ook direct bellen met Sultana BBQ.
+        </p>
+    </div>
+
+    <div class="order-layout">
+        <div class="order-menu">
+            <div class="order-categories" aria-label="Menu categorieen">
+                @foreach (var category in categories)
+                {
+                    <button class="order-category @(selectedCategory == category ? "active" : "")"
+                            @onclick="() => SelectCategory(category)">
+                        @category
+                    </button>
+                }
+            </div>
+
+            <div class="order-items">
+                @foreach (var entry in CurrentItems.Select((Item, Index) => new { Item, Index }))
+                {
+                    <article class="order-card">
+                        <div>
+                            <h2>@entry.Item.Name</h2>
+                            <p>@entry.Item.Description</p>
+                        </div>
+                        <div class="order-card-actions">
+                            <span>€@entry.Item.Price.ToString("F2")</span>
+                            <button type="button" class="order-add" @onclick="() => AddItem(entry.Item)">
+                                Toevoegen
+                            </button>
+                        </div>
+                    </article>
+
+                    @if (ShouldShowPhoto(entry.Index))
+                    {
+                        <figure class="order-photo-card">
+                            <picture>
+                                <source srcset="@GetCategoryPhotoWebp(selectedCategory)" type="image/webp" />
+                                <img src="@GetCategoryPhoto(selectedCategory)"
+                                     alt="@GetCategoryPhotoAlt(selectedCategory)"
+                                     loading="lazy"
+                                     width="1400"
+                                     height="788" />
+                            </picture>
+                            <figcaption>@GetCategoryPhotoCaption(selectedCategory)</figcaption>
+                        </figure>
+                    }
+                }
+            </div>
+        </div>
+
+        <aside class="order-summary" aria-label="Bestelling overzicht">
+            <h2>Jouw Bestelling</h2>
+
+            @if (cart.Count == 0)
+            {
+                <p class="order-empty">Nog geen gerechten gekozen.</p>
+            }
+            else
+            {
+                <div class="order-lines">
+                    @foreach (var line in cart.Values)
+                    {
+                        <div class="order-line">
+                            <div>
+                                <strong>@line.Item.Name</strong>
+                                <span>€@LineTotal(line).ToString("F2")</span>
+                            </div>
+                            <div class="order-quantity">
+                                <button type="button" @onclick="() => RemoveItem(line.Item)" aria-label="@($"Een {line.Item.Name} minder")">-</button>
+                                <span>@line.Quantity</span>
+                                <button type="button" @onclick="() => AddItem(line.Item)" aria-label="@($"Een {line.Item.Name} meer")">+</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+
+            <div class="order-total">
+                <span>Totaal</span>
+                <strong>€@Total.ToString("F2")</strong>
+            </div>
+
+            <div class="order-form">
+                <label>
+                    Naam
+                    <input @bind="customerName" autocomplete="name" />
+                </label>
+                <label>
+                    Telefoon
+                    <input @bind="customerPhone" autocomplete="tel" />
+                </label>
+                <label>
+                    Type bestelling
+                    <select @bind="orderType">
+                        <option>Afhalen</option>
+                        <option>Bezorgen</option>
+                    </select>
+                </label>
+                @if (orderType == "Bezorgen")
+                {
+                    <label>
+                        Adres
+                        <input @bind="deliveryAddress" autocomplete="street-address" />
+                    </label>
+                }
+                <label>
+                    Opmerking
+                    <textarea @bind="orderNote" rows="3"></textarea>
+                </label>
+            </div>
+
+            <button type="button" class="btn-primary order-submit" @onclick="OpenWhatsApp" disabled="@(!CanOrder)">
+                <span>Bestelling Versturen</span>
+            </button>
+
+        </aside>
+    </div>
+</section>
+
+@code {
+    private const string WhatsAppNumber = "31685605933";
+    private readonly Dictionary<string, OrderLine> cart = new();
+    private List<string> categories = new();
+    private string selectedCategory = string.Empty;
+    private string customerName = string.Empty;
+    private string customerPhone = string.Empty;
+    private string deliveryAddress = string.Empty;
+    private string orderNote = string.Empty;
+    private string orderType = "Afhalen";
+
+    private List<MenuItem> CurrentItems => MenuService.GetItemsByCategory(selectedCategory);
+    private decimal Total => cart.Values.Sum(LineTotal);
+    private bool CanOrder => cart.Count > 0;
+
+    protected override void OnInitialized()
+    {
+        categories = MenuService.GetCategories();
+        selectedCategory = categories.FirstOrDefault() ?? string.Empty;
+    }
+
+    private void SelectCategory(string category)
+    {
+        selectedCategory = category;
+    }
+
+    private void AddItem(MenuItem item)
+    {
+        if (cart.TryGetValue(item.Name, out var line))
+        {
+            line.Quantity++;
+            return;
+        }
+
+        cart[item.Name] = new OrderLine { Item = item, Quantity = 1 };
+    }
+
+    private void RemoveItem(MenuItem item)
+    {
+        if (!cart.TryGetValue(item.Name, out var line))
+        {
+            return;
+        }
+
+        line.Quantity--;
+
+        if (line.Quantity <= 0)
+        {
+            cart.Remove(item.Name);
+        }
+    }
+
+    private async Task OpenWhatsApp()
+    {
+        if (!CanOrder)
+        {
+            return;
+        }
+
+        await JS.InvokeVoidAsync("SultanaInterop.openUrl", BuildWhatsAppUrl());
+    }
+
+    private string BuildWhatsAppUrl()
+    {
+        var message = new StringBuilder();
+        message.AppendLine("Hallo Sultana BBQ, ik wil graag bestellen:");
+        message.AppendLine();
+
+        foreach (var line in cart.Values)
+        {
+            message.AppendLine($"- {line.Quantity}x {line.Item.Name} (€{LineTotal(line):F2})");
+        }
+
+        message.AppendLine();
+        message.AppendLine($"Totaal: €{Total:F2}");
+        message.AppendLine($"Type: {orderType}");
+
+        AppendIfFilled(message, "Naam", customerName);
+        AppendIfFilled(message, "Telefoon", customerPhone);
+
+        if (orderType == "Bezorgen")
+        {
+            AppendIfFilled(message, "Adres", deliveryAddress);
+        }
+
+        AppendIfFilled(message, "Opmerking", orderNote);
+
+        return $"https://wa.me/{WhatsAppNumber}?text={Uri.EscapeDataString(message.ToString())}";
+    }
+
+    private static void AppendIfFilled(StringBuilder message, string label, string value)
+    {
+        if (!string.IsNullOrWhiteSpace(value))
+        {
+            message.AppendLine($"{label}: {value.Trim()}");
+        }
+    }
+
+    private static decimal LineTotal(OrderLine line)
+    {
+        return line.Item.Price * line.Quantity;
+    }
+
+    private bool ShouldShowPhoto(int index)
+    {
+        return index == 1 && CurrentItems.Count > 3;
+    }
+
+    private static string GetCategoryPhoto(string category)
+    {
+        return category switch
+        {
+            "Bijgerechten" or "Dranken" => "images/order/mezze-spread.jpg",
+            "Grillgerechten" or "Mixed grill" or "Kipgerechten" or "Vleesgerechten" or "Schotels" => "images/order/grill-platter.jpg",
+            _ => "images/order/wraps-snacks.jpg"
+        };
+    }
+
+    private static string GetCategoryPhotoWebp(string category)
+    {
+        return category switch
+        {
+            "Bijgerechten" or "Dranken" => "images/order/mezze-spread.webp",
+            "Grillgerechten" or "Mixed grill" or "Kipgerechten" or "Vleesgerechten" or "Schotels" => "images/order/grill-platter.webp",
+            _ => "images/order/wraps-snacks.webp"
+        };
+    }
+
+    private static string GetCategoryPhotoAlt(string category)
+    {
+        return category switch
+        {
+            "Bijgerechten" or "Dranken" => "Midden-Oosterse mezze met hummus, baba ganoush, salades en platbrood",
+            "Grillgerechten" or "Mixed grill" or "Kipgerechten" or "Vleesgerechten" or "Schotels" => "Halal mixed grill in Utrecht Overvecht met gegrilde spiesen, kip, vlees en groenten",
+            _ => "Wraps, falafel, burger en loaded fries op een donkere tafel"
+        };
+    }
+
+    private static string GetCategoryPhotoCaption(string category)
+    {
+        return category switch
+        {
+            "Bijgerechten" or "Dranken" => "Mezze & Brood",
+            "Grillgerechten" or "Mixed grill" or "Kipgerechten" or "Vleesgerechten" or "Schotels" => "Van De Grill",
+            _ => "Wraps & Streetfood"
+        };
+    }
+
+    private static readonly IReadOnlyList<BreadcrumbItem> Breadcrumbs =
+    [
+        new("Home", "/"),
+        new("Bestellen", "/bestellen")
+    ];
+
+    private static string JsonLd => SeoSchema.BuildPageSchema("/bestellen", Breadcrumbs, SeoSchema.DefaultFaqs, includeMenu: true);
+
+    private sealed class OrderLine
+    {
+        public required MenuItem Item { get; init; }
+        public int Quantity { get; set; }
+    }
+}

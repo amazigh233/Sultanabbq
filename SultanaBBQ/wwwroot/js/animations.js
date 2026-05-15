@@ -11,10 +11,13 @@ window.SultanaAnimations = (() => {
             return;
         }
 
-        gsap.registerPlugin(ScrollTrigger);
+        ScrollTrigger.getAll().forEach(t => t.kill());
+        gsap.globalTimeline.clear();
 
-        // Hero animations (entrance sequence)
-        animateHero();
+        const particles = document.getElementById('hero-particles');
+        if (particles) particles.innerHTML = '';
+
+        gsap.registerPlugin(ScrollTrigger);
 
         // Scroll-triggered reveal animations
         animateReveals();
@@ -24,35 +27,6 @@ window.SultanaAnimations = (() => {
 
         // Hero particles
         createHeroParticles();
-    }
-
-    function animateHero() {
-        const tl = gsap.timeline({ delay: 1.5 });
-
-        tl.to('.hero-subtitle', {
-            opacity: 1,
-            y: 0,
-            duration: 1,
-            ease: 'power3.out'
-        })
-        .to('.hero-title', {
-            opacity: 1,
-            y: 0,
-            duration: 1.2,
-            ease: 'power3.out'
-        }, '-=0.6')
-        .to('.hero-description', {
-            opacity: 1,
-            y: 0,
-            duration: 1,
-            ease: 'power3.out'
-        }, '-=0.6')
-        .to('.hero-cta', {
-            opacity: 1,
-            y: 0,
-            duration: 0.8,
-            ease: 'power3.out'
-        }, '-=0.4');
     }
 
     function animateReveals() {
@@ -153,28 +127,32 @@ window.SultanaAnimations = (() => {
 
     function animateParallax() {
         // About decoration parallax
-        gsap.to('.about-decoration', {
-            rotation: 360,
-            ease: 'none',
-            scrollTrigger: {
-                trigger: '.about',
-                start: 'top bottom',
-                end: 'bottom top',
-                scrub: 1
-            }
-        });
+        if (document.querySelector('.about-decoration') && document.querySelector('.about')) {
+            gsap.to('.about-decoration', {
+                rotation: 360,
+                ease: 'none',
+                scrollTrigger: {
+                    trigger: '.about',
+                    start: 'top bottom',
+                    end: 'bottom top',
+                    scrub: 1
+                }
+            });
+        }
 
         // Marquee speed change on scroll
-        gsap.to('.marquee-inner', {
-            x: '-=200',
-            ease: 'none',
-            scrollTrigger: {
-                trigger: '.marquee',
-                start: 'top bottom',
-                end: 'bottom top',
-                scrub: 0.5
-            }
-        });
+        if (document.querySelector('.marquee-inner') && document.querySelector('.marquee')) {
+            gsap.to('.marquee-inner', {
+                x: '-=200',
+                ease: 'none',
+                scrollTrigger: {
+                    trigger: '.marquee',
+                    start: 'top bottom',
+                    end: 'bottom top',
+                    scrub: 0.5
+                }
+            });
+        }
     }
 
     function createHeroParticles() {

@@ -1,0 +1,121 @@
+@page "/menu"
+@using SultanaBBQ.Services
+
+<SeoHead Title="Menu Sultana BBQ Utrecht | Halal grill, mixed grill en schotels"
+         Description="Bekijk het menu van Sultana BBQ in Utrecht Overvecht: halal grillgerechten, mixed grill, kip, vlees, burgers, schotels, bijgerechten en dranken."
+         Path="/menu"
+         JsonLd="@JsonLd" />
+
+<section class="seo-hero">
+    <div class="seo-hero-inner">
+        <p class="section-label">Menu Sultana BBQ</p>
+        <h1>Menu van Sultana BBQ Utrecht Overvecht</h1>
+        <p>
+            Ontdek het menu van Sultana BBQ: halal BBQ, mixed grill, kipgerechten,
+            vleesgerechten, burgers, schotels en bijgerechten voor eten in het restaurant,
+            afhalen of bezorgen in Utrecht Overvecht.
+        </p>
+        <div class="seo-hero-actions">
+            <a class="btn-primary" href="/afhalen-bezorgen"><span>Bestel afhalen</span></a>
+            <a class="btn-outline" href="/reserveren"><span>Reserveer tafel</span></a>
+        </div>
+    </div>
+</section>
+
+<section class="menu-html-section" aria-labelledby="menu-html-heading">
+    <div class="section-content">
+        <p class="section-label">Echte HTML-menukaart</p>
+        <h2 id="menu-html-heading">Halal grillgerechten, mixed grill en schotels</h2>
+        <p>
+            Een goed restaurantmenu moet snel leesbaar zijn, ook zonder afbeelding of PDF.
+            Daarom staat de menukaart van Sultana BBQ hier als echte tekst. Gasten kunnen
+            categorieen scannen, gerechten vergelijken en meteen doorklikken naar afhalen,
+            bezorgen of reserveren. De focus ligt op warme grillgerechten, royale mixed
+            grill in Utrecht Overvecht en toegankelijke gerechten voor families, groepen
+            en liefhebbers van Midden-Oosterse smaken.
+        </p>
+
+        <div class="menu-html-grid">
+            @foreach (var category in MenuService.GetCategories())
+            {
+                <section class="menu-html-category">
+                    <h3>@category</h3>
+                    <div class="menu-html-items">
+                        @foreach (var item in MenuService.GetItemsByCategory(category))
+                        {
+                            <article class="menu-html-item">
+                                <div>
+                                    <h4>@item.Name</h4>
+                                    <p>@item.Description</p>
+                                </div>
+                                <strong>€@item.Price.ToString("F2")</strong>
+                            </article>
+                        }
+                    </div>
+                </section>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="seo-content">
+    <div class="seo-content-inner">
+        <div class="seo-copy">
+            <section class="seo-copy-block">
+                <h2>Menu voor halal eten in Overvecht</h2>
+                <p>
+                    Sultana BBQ is ingericht voor gasten die zin hebben in stevig, vers en halal
+                    eten in Overvecht. De gerechten zijn herkenbaar, royaal en geschikt voor een
+                    snelle maaltijd na werk, een familiediner of een avond uit met vrienden. Op
+                    het menu vind je klassiekers zoals Adana kebab, kip shish taouk, lamskoteletten,
+                    falafel, burgers en schotels met rijst, friet, salade en sauzen.
+                </p>
+                <p>
+                    De mixed grill is populair omdat je meerdere smaken in een keer proeft:
+                    kip, vlees, gekruide spiesen en bijgerechten op een schaal die je makkelijk
+                    kunt delen. Dat maakt het menu aantrekkelijk voor groepen die samen willen
+                    eten zonder lang te hoeven kiezen. Ook voor afhalen is de menukaart praktisch:
+                    gerechten blijven overzichtelijk en zijn goed te combineren met bijgerechten.
+                </p>
+            </section>
+
+            <section class="seo-copy-block">
+                <h2>Van restaurant tot afhalen en bezorgen</h2>
+                <p>
+                    Wie zoekt naar een BBQ restaurant in Utrecht wil vaak snel weten wat er te
+                    bestellen is, wat de prijzen zijn en of het restaurant past bij de gelegenheid.
+                    Deze menupagina helpt daarbij. Je kunt eerst rustig de categorieen bekijken
+                    en daarna kiezen of je een tafel reserveert, je bestelling afhaalt of via de
+                    bestelpagina je favoriete halal grillgerecht samenstelt.
+                </p>
+                <p>
+                    Voor families zijn schotels en mixed grill handig, omdat iedereen iets kan
+                    proeven. Voor een snelle lunch of avondmaaltijd zijn wraps, burgers en
+                    kipgerechten laagdrempelig. Voor wie uitgebreid wil eten, zijn de grillgerechten
+                    en groepsschotels de logische keuze. Zo blijft het menu breed zonder rommelig
+                    te worden.
+                </p>
+            </section>
+        </div>
+
+        <aside class="seo-side-panel" aria-label="Menu acties">
+            <h2>Direct kiezen</h2>
+            <a class="btn-primary" href="/bestellen"><span>Bestel afhalen</span></a>
+            <a class="btn-outline" href="/reserveren"><span>Reserveer tafel</span></a>
+            <a class="btn-outline" href="@RestaurantInfo.MapsUrl" target="_blank" rel="noopener noreferrer"><span>Route openen</span></a>
+            <a class="btn-outline" href="tel:@RestaurantInfo.PhoneHref"><span>Bel direct</span></a>
+        </aside>
+    </div>
+</section>
+
+<FaqSection Items="@SeoSchema.DefaultFaqs" />
+
+@code {
+    private static readonly IReadOnlyList<BreadcrumbItem> Breadcrumbs =
+    [
+        new("Home", "/"),
+        new("Menu", "/menu")
+    ];
+
+    private static string JsonLd => SeoSchema.BuildPageSchema("/menu", Breadcrumbs, SeoSchema.DefaultFaqs, includeMenu: true);
+}

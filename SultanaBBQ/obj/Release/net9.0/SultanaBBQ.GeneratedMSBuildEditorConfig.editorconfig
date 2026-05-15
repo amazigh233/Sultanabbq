@@ -1,0 +1,125 @@
+is_global = true
+build_property.EnableAotAnalyzer = 
+build_property.EnableSingleFileAnalyzer = 
+build_property.EnableTrimAnalyzer = false
+build_property.IncludeAllContentForSelfExtract = 
+build_property.TargetFramework = net9.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = 
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = false
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = browser
+build_property.RootNamespace = SultanaBBQ
+build_property.RootNamespace = SultanaBBQ
+build_property.ProjectDir = /Users/bilalzambib/Sultanabbq/SultanaBBQ/
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = false
+build_property.RazorLangVersion = 9.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = /Users/bilalzambib/Sultanabbq/SultanaBBQ
+build_property._RazorSourceGeneratorDebug = 
+build_property.EffectiveAnalysisLevelStyle = 9.0
+build_property.EnableCodeStyleSeverity = 
+
+[/Users/bilalzambib/Sultanabbq/SultanaBBQ/App.razor]
+build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/bilalzambib/Sultanabbq/SultanaBBQ/Components/AboutSection.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9BYm91dFNlY3Rpb24ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/bilalzambib/Sultanabbq/SultanaBBQ/Components/ContactSection.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9Db250YWN0U2VjdGlvbi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/bilalzambib/Sultanabbq/SultanaBBQ/Components/FaqSection.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9GYXFTZWN0aW9uLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/bilalzambib/Sultanabbq/SultanaBBQ/Components/HeroSection.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9IZXJvU2VjdGlvbi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/bilalzambib/Sultanabbq/SultanaBBQ/Components/LocalSeoPage.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9Mb2NhbFNlb1BhZ2UucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/bilalzambib/Sultanabbq/SultanaBBQ/Components/MenuScene.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9NZW51U2NlbmUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/bilalzambib/Sultanabbq/SultanaBBQ/Components/RestaurantTourSection.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9SZXN0YXVyYW50VG91clNlY3Rpb24ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/bilalzambib/Sultanabbq/SultanaBBQ/Components/ReviewsSection.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9SZXZpZXdzU2VjdGlvbi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/bilalzambib/Sultanabbq/SultanaBBQ/Components/SeoHead.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50cy9TZW9IZWFkLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/bilalzambib/Sultanabbq/SultanaBBQ/Layout/MainLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = TGF5b3V0L01haW5MYXlvdXQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/bilalzambib/Sultanabbq/SultanaBBQ/Layout/NavMenu.razor]
+build_metadata.AdditionalFiles.TargetPath = TGF5b3V0L05hdk1lbnUucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/bilalzambib/Sultanabbq/SultanaBBQ/Pages/AfhalenBezorgen.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQWZoYWxlbkJlem9yZ2VuLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/bilalzambib/Sultanabbq/SultanaBBQ/Pages/BBQRestaurantOvervecht.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQkJRUmVzdGF1cmFudE92ZXJ2ZWNodC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/bilalzambib/Sultanabbq/SultanaBBQ/Pages/Builder.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQnVpbGRlci5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/bilalzambib/Sultanabbq/SultanaBBQ/Pages/CocktailBuilder.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQ29ja3RhaWxCdWlsZGVyLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/bilalzambib/Sultanabbq/SultanaBBQ/Pages/Contact.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvQ29udGFjdC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/bilalzambib/Sultanabbq/SultanaBBQ/Pages/GroepenUtrecht.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvR3JvZXBlblV0cmVjaHQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/bilalzambib/Sultanabbq/SultanaBBQ/Pages/HalalRestaurantUtrecht.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvSGFsYWxSZXN0YXVyYW50VXRyZWNodC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/bilalzambib/Sultanabbq/SultanaBBQ/Pages/Home.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvSG9tZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/bilalzambib/Sultanabbq/SultanaBBQ/Pages/Menu.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvTWVudS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/bilalzambib/Sultanabbq/SultanaBBQ/Pages/MixedGrillUtrecht.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvTWl4ZWRHcmlsbFV0cmVjaHQucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/bilalzambib/Sultanabbq/SultanaBBQ/Pages/Order.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvT3JkZXIucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/bilalzambib/Sultanabbq/SultanaBBQ/Pages/Reservering.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXMvUmVzZXJ2ZXJpbmcucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/bilalzambib/Sultanabbq/SultanaBBQ/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = X0ltcG9ydHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 

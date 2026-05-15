@@ -1,0 +1,133 @@
+{
+  "Files": [
+    {
+      "Id": "/Users/bilalzambib/Sultanabbq/SultanaBBQ/bin/Debug/net9.0/wwwroot/_framework/blazor.webassembly.js",
+      "PackagePath": "staticwebassets/_framework/blazor.webassembly.js"
+    },
+    {
+      "Id": "/Users/bilalzambib/Sultanabbq/SultanaBBQ/wwwroot/_headers",
+      "PackagePath": "staticwebassets"
+    },
+    {
+      "Id": "/Users/bilalzambib/Sultanabbq/SultanaBBQ/wwwroot/_redirects",
+      "PackagePath": "staticwebassets"
+    },
+    {
+      "Id": "/Users/bilalzambib/Sultanabbq/SultanaBBQ/wwwroot/css/app.css",
+      "PackagePath": "staticwebassets/css/app.css"
+    },
+    {
+      "Id": "/Users/bilalzambib/Sultanabbq/SultanaBBQ/wwwroot/css/app.min.css",
+      "PackagePath": "staticwebassets/css/app.min.css"
+    },
+    {
+      "Id": "/Users/bilalzambib/Sultanabbq/SultanaBBQ/wwwroot/favicon.png",
+      "PackagePath": "staticwebassets/favicon.png"
+    },
+    {
+      "Id": "/Users/bilalzambib/Sultanabbq/SultanaBBQ/wwwroot/icon-192.png",
+      "PackagePath": "staticwebassets/icon-192.png"
+    },
+    {
+      "Id": "/Users/bilalzambib/Sultanabbq/SultanaBBQ/wwwroot/images/order/grill-platter.jpg",
+      "PackagePath": "staticwebassets/images/order/grill-platter.jpg"
+    },
+    {
+      "Id": "/Users/bilalzambib/Sultanabbq/SultanaBBQ/wwwroot/images/order/grill-platter.webp",
+      "PackagePath": "staticwebassets/images/order/grill-platter.webp"
+    },
+    {
+      "Id": "/Users/bilalzambib/Sultanabbq/SultanaBBQ/wwwroot/images/order/mezze-spread.jpg",
+      "PackagePath": "staticwebassets/images/order/mezze-spread.jpg"
+    },
+    {
+      "Id": "/Users/bilalzambib/Sultanabbq/SultanaBBQ/wwwroot/images/order/mezze-spread.webp",
+      "PackagePath": "staticwebassets/images/order/mezze-spread.webp"
+    },
+    {
+      "Id": "/Users/bilalzambib/Sultanabbq/SultanaBBQ/wwwroot/images/order/wraps-snacks.jpg",
+      "PackagePath": "staticwebassets/images/order/wraps-snacks.jpg"
+    },
+    {
+      "Id": "/Users/bilalzambib/Sultanabbq/SultanaBBQ/wwwroot/images/order/wraps-snacks.webp",
+      "PackagePath": "staticwebassets/images/order/wraps-snacks.webp"
+    },
+    {
+      "Id": "/Users/bilalzambib/Sultanabbq/SultanaBBQ/wwwroot/images/tour/sultana-restaurant-tour.jpg",
+      "PackagePath": "staticwebassets/images/tour/sultana-restaurant-tour.jpg"
+    },
+    {
+      "Id": "/Users/bilalzambib/Sultanabbq/SultanaBBQ/wwwroot/images/tour/sultana-restaurant-tour.png",
+      "PackagePath": "staticwebassets/images/tour/sultana-restaurant-tour.png"
+    },
+    {
+      "Id": "/Users/bilalzambib/Sultanabbq/SultanaBBQ/wwwroot/images/tour/sultana-restaurant-tour.webp",
+      "PackagePath": "staticwebassets/images/tour/sultana-restaurant-tour.webp"
+    },
+    {
+      "Id": "/Users/bilalzambib/Sultanabbq/SultanaBBQ/wwwroot/index.html",
+      "PackagePath": "staticwebassets/index.html"
+    },
+    {
+      "Id": "/Users/bilalzambib/Sultanabbq/SultanaBBQ/wwwroot/js/animations.js",
+      "PackagePath": "staticwebassets/js/animations.js"
+    },
+    {
+      "Id": "/Users/bilalzambib/Sultanabbq/SultanaBBQ/wwwroot/js/animations.min.js",
+      "PackagePath": "staticwebassets/js/animations.min.js"
+    },
+    {
+      "Id": "/Users/bilalzambib/Sultanabbq/SultanaBBQ/wwwroot/js/blazor-interop.js",
+      "PackagePath": "staticwebassets/js/blazor-interop.js"
+    },
+    {
+      "Id": "/Users/bilalzambib/Sultanabbq/SultanaBBQ/wwwroot/js/blazor-interop.min.js",
+      "PackagePath": "staticwebassets/js/blazor-interop.min.js"
+    },
+    {
+      "Id": "/Users/bilalzambib/Sultanabbq/SultanaBBQ/wwwroot/js/scene.js",
+      "PackagePath": "staticwebassets/js/scene.js"
+    },
+    {
+      "Id": "/Users/bilalzambib/Sultanabbq/SultanaBBQ/wwwroot/js/scene.min.js",
+      "PackagePath": "staticwebassets/js/scene.min.js"
+    },
+    {
+      "Id": "/Users/bilalzambib/Sultanabbq/SultanaBBQ/wwwroot/robots.txt",
+      "PackagePath": "staticwebassets/robots.txt"
+    },
+    {
+      "Id": "/Users/bilalzambib/Sultanabbq/SultanaBBQ/wwwroot/sitemap.xml",
+      "PackagePath": "staticwebassets/sitemap.xml"
+    },
+    {
+      "Id": "/Users/bilalzambib/Sultanabbq/SultanaBBQ/wwwroot/staticwebapp.config.json",
+      "PackagePath": "staticwebassets/staticwebapp.config.json"
+    },
+    {
+      "Id": "/Users/bilalzambib/Sultanabbq/SultanaBBQ/wwwroot/videos/sultana-bbq-hero.mp4",
+      "PackagePath": "staticwebassets/videos/sultana-bbq-hero.mp4"
+    },
+    {
+      "Id": "obj/Debug/net9.0/staticwebassets/msbuild.SultanaBBQ.Microsoft.AspNetCore.StaticWebAssetEndpoints.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssetEndpoints.props"
+    },
+    {
+      "Id": "obj/Debug/net9.0/staticwebassets/msbuild.SultanaBBQ.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj/Debug/net9.0/staticwebassets/msbuild.build.SultanaBBQ.props",
+      "PackagePath": "build\\SultanaBBQ.props"
+    },
+    {
+      "Id": "obj/Debug/net9.0/staticwebassets/msbuild.buildMultiTargeting.SultanaBBQ.props",
+      "PackagePath": "buildMultiTargeting\\SultanaBBQ.props"
+    },
+    {
+      "Id": "obj/Debug/net9.0/staticwebassets/msbuild.buildTransitive.SultanaBBQ.props",
+      "PackagePath": "buildTransitive\\SultanaBBQ.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

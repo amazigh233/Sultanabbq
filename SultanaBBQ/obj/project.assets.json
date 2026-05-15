@@ -420,17 +420,27 @@
           }
         }
       },
-      "Microsoft.NET.ILLink.Tasks/9.0.14": {
+      "Microsoft.NET.ILLink.Tasks/9.0.13": {
         "type": "package",
         "build": {
           "build/Microsoft.NET.ILLink.Tasks.props": {}
         }
       },
-      "Microsoft.NET.Sdk.WebAssembly.Pack/9.0.14": {
+      "Microsoft.NET.Sdk.WebAssembly.Pack/9.0.4": {
         "type": "package",
         "build": {
           "build/Microsoft.NET.Sdk.WebAssembly.Pack.props": {},
           "build/Microsoft.NET.Sdk.WebAssembly.Pack.targets": {}
+        }
+      },
+      "SultanaBBQ.Shared/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v9.0",
+        "compile": {
+          "bin/placeholder/SultanaBBQ.Shared.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/SultanaBBQ.Shared.dll": {}
         }
       }
     },
@@ -853,17 +863,27 @@
           }
         }
       },
-      "Microsoft.NET.ILLink.Tasks/9.0.14": {
+      "Microsoft.NET.ILLink.Tasks/9.0.13": {
         "type": "package",
         "build": {
           "build/Microsoft.NET.ILLink.Tasks.props": {}
         }
       },
-      "Microsoft.NET.Sdk.WebAssembly.Pack/9.0.14": {
+      "Microsoft.NET.Sdk.WebAssembly.Pack/9.0.4": {
         "type": "package",
         "build": {
           "build/Microsoft.NET.Sdk.WebAssembly.Pack.props": {},
           "build/Microsoft.NET.Sdk.WebAssembly.Pack.targets": {}
+        }
+      },
+      "SultanaBBQ.Shared/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v9.0",
+        "compile": {
+          "bin/placeholder/SultanaBBQ.Shared.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/SultanaBBQ.Shared.dll": {}
         }
       }
     }
@@ -1654,10 +1674,10 @@
         "microsoft.jsinterop.webassembly.nuspec"
       ]
     },
-    "Microsoft.NET.ILLink.Tasks/9.0.14": {
-      "sha512": "+MeWjj5sGq6Oj/l0E9RPMgXDyCIPxczzCbGuvuVTZFEGiy2S/atsfoAoKUnkEin/GeGpN+HenCzRmiQKSc99eQ==",
+    "Microsoft.NET.ILLink.Tasks/9.0.13": {
+      "sha512": "f7t15I9ZXV7fNk3FIzPAlkJNG1A1tkSeDpRh+TFWEToGGqA+uj6uqU15I8YOkkYICNY2tqOVm2CMe6ScPFPwEg==",
       "type": "package",
-      "path": "microsoft.net.illink.tasks/9.0.14",
+      "path": "microsoft.net.illink.tasks/9.0.13",
       "hasTools": true,
       "files": [
         ".nupkg.metadata",
@@ -1671,7 +1691,7 @@
         "build/Microsoft.NET.ILLink.Analyzers.props",
         "build/Microsoft.NET.ILLink.Tasks.props",
         "build/Microsoft.NET.ILLink.targets",
-        "microsoft.net.illink.tasks.9.0.14.nupkg.sha512",
+        "microsoft.net.illink.tasks.9.0.13.nupkg.sha512",
         "microsoft.net.illink.tasks.nuspec",
         "tools/net472/ILLink.Tasks.dll",
         "tools/net472/ILLink.Tasks.dll.config",
@@ -1705,10 +1725,10 @@
         "useSharedDesignerContext.txt"
       ]
     },
-    "Microsoft.NET.Sdk.WebAssembly.Pack/9.0.14": {
-      "sha512": "C69h2ZW0zQf5K389hwVP3oRccYvGaTueidbvsXXcjcLzpFG920Ut4DIF9OsE6AwxdxTGYumGF1kSjHT3VM6t/w==",
+    "Microsoft.NET.Sdk.WebAssembly.Pack/9.0.4": {
+      "sha512": "SbawDIBdWK+7UTkiIXquadlWAUPxV88+jytBdVsIFzvJXkxGGQKrufO4KPyYdS4shFtXLZyCuCckNt0YN5hZKw==",
       "type": "package",
-      "path": "microsoft.net.sdk.webassembly.pack/9.0.14",
+      "path": "microsoft.net.sdk.webassembly.pack/9.0.4",
       "hasTools": true,
       "files": [
         ".nupkg.metadata",
@@ -1739,55 +1759,58 @@
         "build/Microsoft.NET.Sdk.WebAssembly.Pack.targets",
         "build/Wasm.web.config",
         "build/browser.runtimeconfig.template.json",
-        "microsoft.net.sdk.webassembly.pack.9.0.14.nupkg.sha512",
+        "microsoft.net.sdk.webassembly.pack.9.0.4.nupkg.sha512",
         "microsoft.net.sdk.webassembly.pack.nuspec",
         "tools/net472/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll",
         "tools/net472/Microsoft.NET.WebAssembly.Webcil.dll",
         "tools/net9.0/Microsoft.NET.Sdk.WebAssembly.Pack.Tasks.dll",
         "tools/net9.0/Microsoft.NET.WebAssembly.Webcil.dll"
       ]
+    },
+    "SultanaBBQ.Shared/1.0.0": {
+      "type": "project",
+      "path": "SultanaBBQ.Shared/SultanaBBQ.Shared.csproj",
+      "msbuildProject": "SultanaBBQ.Shared/SultanaBBQ.Shared.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net9.0": [
       "Microsoft.AspNetCore.Components.WebAssembly >= 9.0.14",
       "Microsoft.AspNetCore.Components.WebAssembly.DevServer >= 9.0.14",
-      "Microsoft.NET.ILLink.Tasks >= 9.0.14",
-      "Microsoft.NET.Sdk.WebAssembly.Pack >= 9.0.14"
+      "Microsoft.NET.ILLink.Tasks >= 9.0.13",
+      "Microsoft.NET.Sdk.WebAssembly.Pack >= 9.0.4",
+      "SultanaBBQ.Shared >= 1.0.0"
     ]
   },
   "packageFolders": {
-    "C:\\Users\\BZAMBIB\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "/Users/bilalzambib/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\BZAMBIB\\Documents\\My Web Sites\\sultana\\SultanaBBQ\\SultanaBBQ.csproj",
+      "projectUniqueName": "/Users/bilalzambib/Sultanabbq/SultanaBBQ/SultanaBBQ.csproj",
       "projectName": "SultanaBBQ",
-      "projectPath": "C:\\Users\\BZAMBIB\\Documents\\My Web Sites\\sultana\\SultanaBBQ\\SultanaBBQ.csproj",
-      "packagesPath": "C:\\Users\\BZAMBIB\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\BZAMBIB\\Documents\\My Web Sites\\sultana\\SultanaBBQ\\obj\\",
+      "projectPath": "/Users/bilalzambib/Sultanabbq/SultanaBBQ/SultanaBBQ.csproj",
+      "packagesPath": "/Users/bilalzambib/.nuget/packages/",
+      "outputPath": "/Users/bilalzambib/Sultanabbq/SultanaBBQ/obj/",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-      ],
       "configFilePaths": [
-        "C:\\Users\\BZAMBIB\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "/Users/bilalzambib/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net9.0": {
           "targetAlias": "net9.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "/Users/bilalzambib/Sultanabbq/SultanaBBQ/SultanaBBQ.Shared/SultanaBBQ.Shared.csproj": {
+              "projectPath": "/Users/bilalzambib/Sultanabbq/SultanaBBQ/SultanaBBQ.Shared/SultanaBBQ.Shared.csproj"
+            }
+          }
         }
       },
       "warningProperties": {
@@ -1800,7 +1823,7 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "9.0.300"
+      "SdkAnalysisLevel": "10.0.100"
     },
     "frameworks": {
       "net9.0": {
@@ -1818,14 +1841,13 @@
           "Microsoft.NET.ILLink.Tasks": {
             "suppressParent": "All",
             "target": "Package",
-            "version": "[9.0.14, )",
+            "version": "[9.0.13, )",
             "autoReferenced": true
           },
           "Microsoft.NET.Sdk.WebAssembly.Pack": {
             "suppressParent": "All",
             "target": "Package",
-            "version": "[9.0.14, )",
-            "autoReferenced": true
+            "version": "[9.0.4, )"
           }
         },
         "imports": [
@@ -1841,8 +1863,16 @@
         "warn": true,
         "downloadDependencies": [
           {
+            "name": "Microsoft.AspNetCore.App.Ref",
+            "version": "[9.0.13, 9.0.13]"
+          },
+          {
+            "name": "Microsoft.NETCore.App.Ref",
+            "version": "[9.0.13, 9.0.13]"
+          },
+          {
             "name": "Microsoft.NETCore.App.Runtime.Mono.browser-wasm",
-            "version": "[9.0.14, 9.0.14]"
+            "version": "[9.0.13, 9.0.13]"
           }
         ],
         "frameworkReferences": {
@@ -1850,7 +1880,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.312/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/Users/bilalzambib/.dotnet/sdk/10.0.103/PortableRuntimeIdentifierGraph.json"
       }
     },
     "runtimes": {

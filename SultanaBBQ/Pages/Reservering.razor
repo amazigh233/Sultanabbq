@@ -1,0 +1,283 @@
+@page "/reservering"
+@page "/reserveren"
+@using SultanaBBQ.Services
+@using SultanaBBQ.Shared
+@inject HttpClient Http
+
+<SeoHead Title="Reserveren Sultana BBQ Utrecht Overvecht | Halal BBQ en mixed grill"
+         Description="Reserveer een tafel bij Sultana BBQ in Utrecht Overvecht voor halal BBQ, mixed grill, families, groepen en grillgerechten."
+         Path="/reserveren"
+         JsonLd="@JsonLd" />
+
+<section class="reservering-hero">
+    <div class="reservering-hero-inner">
+        <div class="section-label">Tafel Reserveren</div>
+        <h1>Reserveer een tafel bij Sultana BBQ</h1>
+        <p>Reserveer eenvoudig online voor halal BBQ, mixed grill en grillgerechten in Utrecht Overvecht.</p>
+    </div>
+</section>
+
+<section class="reservering-intro">
+    <div class="section-content">
+        <p class="section-label">Restaurant in Overvecht</p>
+        <h2>Plan je bezoek voor familie, vrienden of een groep</h2>
+        <p>
+            Wil je zeker zijn van een tafel bij Sultana BBQ? Reserveer dan vooraf,
+            vooral wanneer je met familie, vrienden of een grotere groep komt eten.
+            Sultana BBQ is een halal BBQ- en grillrestaurant in Utrecht Overvecht
+            waar gasten terechtkunnen voor mixed grill, kipgerechten, vleesgerechten,
+            burgers, schotels en bijgerechten.
+        </p>
+        <p>
+            Reserveren is handig wanneer je rustig wilt tafelen, meerdere gerechten
+            wilt delen of met kinderen komt. Het team kan dan rekening houden met
+            het aantal personen en de gewenste tijd. Zoek je een restaurant voor
+            groepen in Utrecht of een halal restaurant in Overvecht, geef dan bij
+            je reservering duidelijk aan met hoeveel personen je komt en of er
+            bijzonderheden zijn.
+        </p>
+        <p>
+            Kom je liever snel eten of wil je thuis genieten van BBQ? Bekijk dan het
+            menu en bestel voor afhalen of bezorgen. Voor vragen over allergenen,
+            drukte, grotere gezelschappen of speciale wensen kun je direct bellen.
+            De locatie aan de Zamenhofdreef is goed bereikbaar binnen Overvecht;
+            open de route voordat je vertrekt en controleer de actuele parkeerregels
+            in de buurt.
+        </p>
+        <div class="seo-inline-actions">
+            <a class="btn-primary" href="/menu"><span>Bekijk menu</span></a>
+            <a class="btn-outline" href="/afhalen-bezorgen"><span>Bestel afhalen</span></a>
+            <a class="btn-outline" href="@RestaurantInfo.MapsUrl" target="_blank" rel="noopener noreferrer"><span>Route openen</span></a>
+        </div>
+    </div>
+</section>
+
+<section class="reservering-section">
+    <div class="container">
+
+        @if (submitted)
+        {
+            <div class="reservering-success reveal active">
+                <div class="success-icon">&#10003;</div>
+                <h2>Reservering Ontvangen!</h2>
+                <p>Bedankt, <strong>@naam</strong>. We hebben uw reservering voor <strong>@aantalPersonen personen</strong> op <strong>@datum.ToString("d MMMM yyyy")</strong> om <strong>@tijd</strong> ontvangen.</p>
+                <p class="success-sub">U ontvangt direct een ontvangstmail op <strong>@email</strong>. De eigenaar controleert de reservering en stuurt daarna de definitieve bevestiging.</p>
+                <button class="btn-gold" @onclick="Reset">Nieuwe Reservering</button>
+            </div>
+        }
+        else
+        {
+            <div class="reservering-layout">
+                <div class="reservering-form-wrap reveal active">
+                    <h2>Reserveringsgegevens</h2>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Naam *</label>
+                            <input type="text" @bind="naam" placeholder="Uw volledige naam" class="@(showErrors && string.IsNullOrWhiteSpace(naam) ? "error" : "")" />
+                            @if (showErrors && string.IsNullOrWhiteSpace(naam))
+                            {
+                                <span class="form-error">Naam is verplicht</span>
+                            }
+                        </div>
+
+                        <div class="form-group">
+                            <label>E-mailadres *</label>
+                            <input type="email" @bind="email" placeholder="uw@email.nl" class="@(showErrors && !HasValidEmail ? "error" : "")" />
+                            @if (showErrors && string.IsNullOrWhiteSpace(email))
+                            {
+                                <span class="form-error">E-mailadres is verplicht</span>
+                            }
+                            else if (showErrors && !HasValidEmail)
+                            {
+                                <span class="form-error">Vul een geldig e-mailadres in</span>
+                            }
+                        </div>
+
+                        <div class="form-group">
+                            <label>Telefoonnummer *</label>
+                            <input type="tel" @bind="telefoon" placeholder="+31 6 12345678" class="@(showErrors && string.IsNullOrWhiteSpace(telefoon) ? "error" : "")" />
+                            @if (showErrors && string.IsNullOrWhiteSpace(telefoon))
+                            {
+                                <span class="form-error">Telefoonnummer is verplicht</span>
+                            }
+                        </div>
+
+                        <div class="form-group">
+                            <label>Aantal Personen *</label>
+                            <select @bind="aantalPersonen" class="@(showErrors && aantalPersonen == 0 ? "error" : "")">
+                                <option value="0">Kies aantal personen</option>
+                                @for (int i = 1; i <= 20; i++)
+                                {
+                                    var n = i;
+                                    <option value="@n">@n @(n == 1 ? "persoon" : "personen")</option>
+                                }
+                            </select>
+                            @if (showErrors && aantalPersonen == 0)
+                            {
+                                <span class="form-error">Kies het aantal personen</span>
+                            }
+                        </div>
+
+                        <div class="form-group">
+                            <label>Datum *</label>
+                            <input type="date" @bind="datum" min="@DateTime.Today.ToString("yyyy-MM-dd")" class="@(showErrors && datum == default ? "error" : "")" />
+                            @if (showErrors && datum == default)
+                            {
+                                <span class="form-error">Kies een datum</span>
+                            }
+                        </div>
+
+                        <div class="form-group">
+                            <label>Tijdstip *</label>
+                            <select @bind="tijd" class="@(showErrors && string.IsNullOrWhiteSpace(tijd) ? "error" : "")">
+                                <option value="">Kies een tijdstip</option>
+                                @foreach (var t in GetTijdsloten())
+                                {
+                                    <option value="@t">@t</option>
+                                }
+                            </select>
+                            @if (showErrors && string.IsNullOrWhiteSpace(tijd))
+                            {
+                                <span class="form-error">Kies een tijdstip</span>
+                            }
+                        </div>
+
+                        <div class="form-group form-group-full">
+                            <label>Opmerkingen / Bijzonderheden</label>
+                            <textarea @bind="opmerkingen" placeholder="Allergieën, verjaardagen, speciale wensen..." rows="4"></textarea>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(submitError))
+                    {
+                        <div class="form-submit-error" role="alert">@submitError</div>
+                    }
+
+                    <button class="btn-gold btn-large" @onclick="Submit" disabled="@submitting">
+                        @(submitting ? "Reservering wordt verstuurd..." : "Reservering Aanvragen")
+                    </button>
+                </div>
+
+                <div class="reservering-info reveal active">
+                    <div class="info-card">
+                        <div class="info-icon">&#128337;</div>
+                        <h3>Openingstijden</h3>
+                        <div class="info-hours">
+                            <div><span>Ma – Zo</span><span>11:00 – 22:00</span></div>
+                        </div>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-icon">&#128205;</div>
+                        <h3>Locatie</h3>
+                        <p>Zamenhofdreef 69<br />3562 JV Utrecht</p>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-icon">&#128222;</div>
+                        <h3>Telefoon</h3>
+                        <p><a href="tel:+31685605933">+31 6 85605933</a></p>
+                    </div>
+
+                    <div class="info-card info-card-note">
+                        <p>Reserveringen kunnen tot <strong>2 uur van tevoren</strong> worden gemaakt. Voor groepen van meer dan 10 personen, neem telefonisch contact op.</p>
+                    </div>
+                </div>
+            </div>
+        }
+
+    </div>
+</section>
+
+<FaqSection Items="@SeoSchema.DefaultFaqs" />
+
+@code {
+    private static readonly IReadOnlyList<BreadcrumbItem> Breadcrumbs =
+    [
+        new("Home", "/"),
+        new("Reserveren", "/reserveren")
+    ];
+
+    private static string JsonLd => SeoSchema.BuildPageSchema("/reserveren", Breadcrumbs, SeoSchema.DefaultFaqs);
+
+    private string naam = "";
+    private string email = "";
+    private string telefoon = "";
+    private int aantalPersonen = 0;
+    private DateTime datum = default;
+    private string tijd = "";
+    private string opmerkingen = "";
+    private bool submitted = false;
+    private bool showErrors = false;
+    private bool submitting = false;
+    private string submitError = "";
+
+    private bool HasValidEmail =>
+        !string.IsNullOrWhiteSpace(email) &&
+        email.Contains('@', StringComparison.Ordinal) &&
+        email.Contains('.', StringComparison.Ordinal);
+
+    private bool IsValid =>
+        !string.IsNullOrWhiteSpace(naam) &&
+        HasValidEmail &&
+        !string.IsNullOrWhiteSpace(telefoon) &&
+        aantalPersonen > 0 &&
+        datum != default &&
+        !string.IsNullOrWhiteSpace(tijd);
+
+    private async Task Submit()
+    {
+        showErrors = true;
+        submitError = "";
+
+        if (!IsValid || submitting)
+        {
+            return;
+        }
+
+        submitting = true;
+        try
+        {
+            var request = new ReservationRequest(
+                naam.Trim(),
+                email.Trim(),
+                telefoon.Trim(),
+                aantalPersonen,
+                DateOnly.FromDateTime(datum),
+                tijd.Trim(),
+                opmerkingen.Trim());
+
+            var response = await Http.PostAsJsonAsync("api/reservations", request);
+            if (response.IsSuccessStatusCode)
+            {
+                submitted = true;
+                return;
+            }
+
+            submitError = "De reservering kon niet worden bevestigd. Probeer het opnieuw of bel ons direct.";
+        }
+        catch
+        {
+            submitError = "Er is geen verbinding met de reserveringsserver. Probeer het later opnieuw of bel ons direct.";
+        }
+        finally
+        {
+            submitting = false;
+        }
+    }
+
+    private void Reset()
+    {
+        naam = ""; email = ""; telefoon = ""; opmerkingen = "";
+        aantalPersonen = 0; datum = default; tijd = "";
+        submitted = false; showErrors = false; submitError = "";
+    }
+
+    private static IEnumerable<string> GetTijdsloten()
+    {
+        for (int h = 12; h <= 21; h++)
+            foreach (var m in new[] { "00", "30" })
+                yield return $"{h:D2}:{m}";
+    }
+}

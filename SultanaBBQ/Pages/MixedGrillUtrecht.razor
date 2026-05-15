@@ -1,0 +1,50 @@
+@page "/mixed-grill-utrecht"
+@using SultanaBBQ.Services
+
+<LocalSeoPage Title="Mixed grill Utrecht | Sultana BBQ Overvecht"
+              Description="Zin in mixed grill in Utrecht? Sultana BBQ in Overvecht serveert halal mixed grill, kip, vlees, schotels en groepsgerechten voor restaurant en afhalen."
+              Path="/mixed-grill-utrecht"
+              H1="Mixed grill in Utrecht Overvecht"
+              Eyebrow="Halal mixed grill"
+              Intro="De mixed grill van Sultana BBQ is bedoeld voor gasten die meerdere grillgerechten willen proeven: kip, vlees, gekruide spiesen, bijgerechten, sauzen en salade om te delen."
+              Blocks="@Blocks"
+              Breadcrumbs="@Breadcrumbs"
+              PrimaryLinks="@PrimaryLinks" />
+
+@code {
+    private static readonly IReadOnlyList<SeoContentBlock> Blocks =
+    [
+        new("Waarom kiezen voor mixed grill?",
+        [
+            "Mixed grill is populair omdat je niet hoeft te kiezen tussen kip, vlees en verschillende marinades. Je krijgt een gevarieerde combinatie van grillgerechten die samen een complete maaltijd vormen. Bij Sultana BBQ in Utrecht Overvecht draait mixed grill om halal bereiding, royale porties en bijgerechten die passen bij de smaak van de grill.",
+            "Voor nieuwe gasten is mixed grill vaak de beste introductie tot het restaurant. Je proeft meerdere soorten vlees en kip, samen met rijst, salade, brood en sauzen. Daardoor krijg je een goed beeld van de keuken zonder het hele menu te hoeven doorzoeken."
+        ]),
+        new("Mixed grill voor samen eten",
+        [
+            "Een mixed grill in Utrecht is extra geschikt wanneer je samen wilt eten met familie of vrienden. In plaats van losse gerechten te bestellen, kun je een schaal delen en aanvullen met hummus, baba ganoush, tabbouleh of friet. Dat maakt de maaltijd ontspannen en sociaal. Iedereen kan pakken wat hij lekker vindt.",
+            "Voor groepen is vooraf reserveren slim. Het restaurant kan dan rekening houden met tafelruimte en timing. Wil je de mixed grill thuis eten, dan kun je kiezen voor afhalen. Bel bij grotere bestellingen vooraf, zodat het team je kan adviseren over aantallen en combinaties."
+        ]),
+        new("Halal grillgerechten met duidelijke keuzes",
+        [
+            "Sultana BBQ positioneert zich als halal grillrestaurant in Utrecht Overvecht. Dat betekent dat de mixed grill niet losstaat van de rest van het menu, maar onderdeel is van een breder aanbod met kipgerechten, vleesgerechten, burgers, schotels en bijgerechten. Zo kunnen ook gasten die geen mixed grill willen makkelijk iets anders kiezen.",
+            "De menupagina helpt je de verschillen te zien. Kies een mixed grill wanneer je variatie wilt, een kipgerecht wanneer je iets lichter wilt eten of een schotel wanneer je een complete maaltijd op een bord wilt."
+        ]),
+        new("Afhalen of reserveren",
+        [
+            "De mixed grill kun je eten in het restaurant of bestellen voor afhalen. In het restaurant is het vooral prettig wanneer je de sfeer van Sultana BBQ wilt ervaren. Voor thuis is afhalen handig wanneer je een tafel vol gerechten wilt zonder zelf te koken. De route naar Sultana BBQ aan de Zamenhofdreef is makkelijk te openen via de contactknoppen.",
+            "Wie zoekt naar mixed grill Utrecht of halal BBQ Overvecht krijgt op deze pagina direct de belangrijkste vervolgstappen: menu bekijken, reserveren, afhalen bestellen, route openen of bellen."
+        ])
+    ];
+
+    private static readonly IReadOnlyList<BreadcrumbItem> Breadcrumbs =
+    [
+        new("Home", "/"),
+        new("Mixed grill Utrecht", "/mixed-grill-utrecht")
+    ];
+
+    private static readonly IReadOnlyList<SeoLink> PrimaryLinks =
+    [
+        new("Bekijk menu", "/menu"),
+        new("Reserveer tafel", "/reserveren", "outline")
+    ];
+}

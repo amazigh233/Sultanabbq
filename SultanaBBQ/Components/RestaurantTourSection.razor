@@ -1,0 +1,97 @@
+<section class="tour-section" id="tour">
+    <div class="tour-inner">
+        <div class="tour-copy reveal">
+            <p class="section-label">360 restaurant tour</p>
+            <h2>Bekijk Sultana BBQ van binnen</h2>
+            <p class="tour-subtitle">Loop digitaal door ons restaurant en ontdek de sfeer, zitplekken en groepsruimtes.</p>
+            <p>
+                Bekijk alvast waar je straks komt eten. Van onze warme BBQ-sfeer tot comfortabele
+                tafels voor families en groepen.
+            </p>
+            <div class="tour-actions">
+                <a class="btn-primary" href="/reservering"><span>Reserveer tafel</span></a>
+                <a class="btn-outline" href="#menu"><span>Bekijk menu</span></a>
+            </div>
+        </div>
+
+        <div class="tour-viewer reveal" aria-label="Interactieve tour door Sultana BBQ">
+            <div class="tour-frame">
+                <picture>
+                    <source srcset="images/tour/sultana-restaurant-tour.webp" type="image/webp" />
+                    <source srcset="images/tour/sultana-restaurant-tour.jpg" type="image/jpeg" />
+                    <img src="images/tour/sultana-restaurant-tour.png"
+                         alt="Panoramisch interieur van Sultana BBQ in Utrecht Overvecht met warme verlichting, tafels en grill sfeer"
+                         loading="lazy"
+                         width="1400"
+                         height="600" />
+                </picture>
+                <div class="tour-vignette"></div>
+
+                @foreach (var scene in Scenes)
+                {
+                    <button type="button"
+                            class="tour-hotspot @(ActiveScene == scene ? "active" : "")"
+                            style="@($"--x:{scene.X}%; --y:{scene.Y}%;")"
+                            aria-label="@($"Bekijk {scene.Title}")"
+                            @onclick="() => SelectScene(scene)">
+                        <span></span>
+                    </button>
+                }
+
+                <article class="tour-info-panel" @key="ActiveScene.Title">
+                    <span>@ActiveScene.Step</span>
+                    <h3>@ActiveScene.Title</h3>
+                    <p>@ActiveScene.Description</p>
+                </article>
+            </div>
+
+            <div class="tour-nav" aria-label="Kies een ruimte">
+                @foreach (var scene in Scenes)
+                {
+                    <button type="button"
+                            class="tour-nav-card @(ActiveScene == scene ? "active" : "")"
+                            @onclick="() => SelectScene(scene)">
+                        <span>@scene.ShortTitle</span>
+                        <small>@scene.Step</small>
+                    </button>
+                }
+            </div>
+        </div>
+
+        <div class="tour-bottom-cta reveal">
+            <p>Plan je bezoek met familie, vrienden of een grotere groep.</p>
+            <a class="btn-primary" href="/reservering"><span>Reserveer tafel</span></a>
+        </div>
+    </div>
+</section>
+
+@code {
+    private TourScene ActiveScene = default!;
+
+    private readonly TourScene[] Scenes =
+    [
+        new("01", "Ingang & ontvangst", "Ingang", "Stap binnen in een warme BBQ-sfeer met gastvrije ontvangst.", 18, 58),
+        new("02", "Restaurantzaal", "Zitplekken", "Bekijk onze ruime zitplekken voor families, vrienden en kleine groepen.", 45, 54),
+        new("03", "Groepsruimte", "Groepsruimte", "Ideaal voor verjaardagen, familiediners en grotere gezelschappen.", 72, 48),
+        new("04", "Interieur & sfeer", "Interieur", "Warme verlichting, gezellige tafels en een premium BBQ-uitstraling.", 58, 30),
+        new("05", "Grill experience", "Grill", "Voel de sfeer van vuur, rook en verse grillgerechten.", 83, 62)
+    ];
+
+    protected override void OnInitialized()
+    {
+        ActiveScene = Scenes[0];
+    }
+
+    private void SelectScene(TourScene scene)
+    {
+        ActiveScene = scene;
+    }
+
+    private sealed record TourScene(
+        string Step,
+        string Title,
+        string ShortTitle,
+        string Description,
+        int X,
+        int Y);
+}

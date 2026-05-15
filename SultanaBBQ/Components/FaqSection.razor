@@ -1,0 +1,25 @@
+@using SultanaBBQ.Services
+
+<section class="faq-section" aria-labelledby="@HeadingId">
+    <div class="section-content">
+        <p class="section-label">Veelgestelde vragen</p>
+        <h2 id="@HeadingId">@Heading</h2>
+
+        <div class="faq-grid">
+            @foreach (var faq in Items)
+            {
+                <article class="faq-item">
+                    <h3>@faq.Question</h3>
+                    <p>@faq.Answer</p>
+                </article>
+            }
+        </div>
+    </div>
+</section>
+
+@code {
+    [Parameter] public string Heading { get; set; } = "Veelgestelde vragen over Sultana BBQ";
+    [Parameter] public IReadOnlyList<FaqItem> Items { get; set; } = SeoSchema.DefaultFaqs;
+
+    private const string HeadingId = "veelgestelde-vragen";
+}

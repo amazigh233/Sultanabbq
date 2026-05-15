@@ -1,31 +1,129 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\BZAMBIB\\Documents\\My Web Sites\\sultana\\SultanaBBQ\\SultanaBBQ.csproj": {}
+    "/Users/bilalzambib/Sultanabbq/SultanaBBQ/SultanaBBQ.csproj": {}
   },
   "projects": {
-    "C:\\Users\\BZAMBIB\\Documents\\My Web Sites\\sultana\\SultanaBBQ\\SultanaBBQ.csproj": {
+    "/Users/bilalzambib/Sultanabbq/SultanaBBQ/SultanaBBQ.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\BZAMBIB\\Documents\\My Web Sites\\sultana\\SultanaBBQ\\SultanaBBQ.csproj",
+        "projectUniqueName": "/Users/bilalzambib/Sultanabbq/SultanaBBQ/SultanaBBQ.csproj",
         "projectName": "SultanaBBQ",
-        "projectPath": "C:\\Users\\BZAMBIB\\Documents\\My Web Sites\\sultana\\SultanaBBQ\\SultanaBBQ.csproj",
-        "packagesPath": "C:\\Users\\BZAMBIB\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\BZAMBIB\\Documents\\My Web Sites\\sultana\\SultanaBBQ\\obj\\",
+        "projectPath": "/Users/bilalzambib/Sultanabbq/SultanaBBQ/SultanaBBQ.csproj",
+        "packagesPath": "/Users/bilalzambib/.nuget/packages/",
+        "outputPath": "/Users/bilalzambib/Sultanabbq/SultanaBBQ/obj/",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\BZAMBIB\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "/Users/bilalzambib/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {
+              "/Users/bilalzambib/Sultanabbq/SultanaBBQ/SultanaBBQ.Shared/SultanaBBQ.Shared.csproj": {
+                "projectPath": "/Users/bilalzambib/Sultanabbq/SultanaBBQ/SultanaBBQ.Shared/SultanaBBQ.Shared.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.100"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "dependencies": {
+            "Microsoft.AspNetCore.Components.WebAssembly": {
+              "target": "Package",
+              "version": "[9.0.14, )"
+            },
+            "Microsoft.AspNetCore.Components.WebAssembly.DevServer": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.14, )"
+            },
+            "Microsoft.NET.ILLink.Tasks": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.13, )",
+              "autoReferenced": true
+            },
+            "Microsoft.NET.Sdk.WebAssembly.Pack": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.4, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[9.0.13, 9.0.13]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[9.0.13, 9.0.13]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Runtime.Mono.browser-wasm",
+              "version": "[9.0.13, 9.0.13]"
+            }
+          ],
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/Users/bilalzambib/.dotnet/sdk/10.0.103/PortableRuntimeIdentifierGraph.json"
+        }
+      },
+      "runtimes": {
+        "browser-wasm": {
+          "#import": []
+        }
+      }
+    },
+    "/Users/bilalzambib/Sultanabbq/SultanaBBQ/SultanaBBQ.Shared/SultanaBBQ.Shared.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/bilalzambib/Sultanabbq/SultanaBBQ/SultanaBBQ.Shared/SultanaBBQ.Shared.csproj",
+        "projectName": "SultanaBBQ.Shared",
+        "projectPath": "/Users/bilalzambib/Sultanabbq/SultanaBBQ/SultanaBBQ.Shared/SultanaBBQ.Shared.csproj",
+        "packagesPath": "/Users/bilalzambib/.nuget/packages/",
+        "outputPath": "/Users/bilalzambib/Sultanabbq/SultanaBBQ/SultanaBBQ.Shared/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/bilalzambib/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -44,34 +142,11 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.300"
+        "SdkAnalysisLevel": "10.0.100"
       },
       "frameworks": {
         "net9.0": {
           "targetAlias": "net9.0",
-          "dependencies": {
-            "Microsoft.AspNetCore.Components.WebAssembly": {
-              "target": "Package",
-              "version": "[9.0.14, )"
-            },
-            "Microsoft.AspNetCore.Components.WebAssembly.DevServer": {
-              "suppressParent": "All",
-              "target": "Package",
-              "version": "[9.0.14, )"
-            },
-            "Microsoft.NET.ILLink.Tasks": {
-              "suppressParent": "All",
-              "target": "Package",
-              "version": "[9.0.14, )",
-              "autoReferenced": true
-            },
-            "Microsoft.NET.Sdk.WebAssembly.Pack": {
-              "suppressParent": "All",
-              "target": "Package",
-              "version": "[9.0.14, )",
-              "autoReferenced": true
-            }
-          },
           "imports": [
             "net461",
             "net462",
@@ -85,8 +160,12 @@
           "warn": true,
           "downloadDependencies": [
             {
-              "name": "Microsoft.NETCore.App.Runtime.Mono.browser-wasm",
-              "version": "[9.0.14, 9.0.14]"
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[9.0.13, 9.0.13]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[9.0.13, 9.0.13]"
             }
           ],
           "frameworkReferences": {
@@ -94,12 +173,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.312/PortableRuntimeIdentifierGraph.json"
-        }
-      },
-      "runtimes": {
-        "browser-wasm": {
-          "#import": []
+          "runtimeIdentifierGraphPath": "/Users/bilalzambib/.dotnet/sdk/10.0.103/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

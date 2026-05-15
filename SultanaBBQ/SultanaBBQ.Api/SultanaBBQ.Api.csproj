@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <ProjectReference Include="..\SultanaBBQ.Shared\SultanaBBQ.Shared.csproj" />
+    <ProjectReference Include="..\SultanaBBQ.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MailKit" Version="4.16.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="9.0.14" />
+    <PackageReference Include="Npgsql" Version="10.0.2" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <UserSecretsId>sultanabbq-api-local-secrets</UserSecretsId>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+</Project>

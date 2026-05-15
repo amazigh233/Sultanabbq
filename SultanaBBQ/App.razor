@@ -4,9 +4,23 @@
         <FocusOnNavigate RouteData="@routeData" Selector="h1" />
     </Found>
     <NotFound>
-        <PageTitle>Not found</PageTitle>
+        <PageTitle>Pagina niet gevonden | Sultana BBQ Utrecht</PageTitle>
         <LayoutView Layout="@typeof(MainLayout)">
-            <p role="alert">Sorry, there's nothing at this address.</p>
+            <section class="not-found-page" role="alert">
+                <div class="section-content">
+                    <p class="section-label">404</p>
+                    <h1>Pagina niet gevonden</h1>
+                    <p>
+                        Deze pagina bestaat niet of is verplaatst. Ga terug naar het menu,
+                        reserveer een tafel of open de contactpagina van Sultana BBQ in Utrecht Overvecht.
+                    </p>
+                    <div class="seo-inline-actions">
+                        <a class="btn-primary" href="/menu"><span>Bekijk menu</span></a>
+                        <a class="btn-outline" href="/reserveren"><span>Reserveer tafel</span></a>
+                        <a class="btn-outline" href="/contact"><span>Contact</span></a>
+                    </div>
+                </div>
+            </section>
         </LayoutView>
     </NotFound>
 </Router>

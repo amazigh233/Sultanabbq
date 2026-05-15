@@ -6,9 +6,28 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <PublishTrimmed>true</PublishTrimmed>
+    <TrimMode>partial</TrimMode>
+    <BlazorWebAssemblyLoadAllGlobalizationData>false</BlazorWebAssemblyLoadAllGlobalizationData>
+    <BlazorEnableTimeZoneSupport>false</BlazorEnableTimeZoneSupport>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="9.0.14" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="9.0.14" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.NET.Sdk.WebAssembly.Pack" Version="9.0.4" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="SultanaBBQ.Api\**;SultanaBBQ.Shared\**" />
+    <Content Remove="SultanaBBQ.Api\**;SultanaBBQ.Shared\**" />
+    <EmbeddedResource Remove="SultanaBBQ.Api\**;SultanaBBQ.Shared\**" />
+    <None Remove="SultanaBBQ.Api\**;SultanaBBQ.Shared\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="SultanaBBQ.Shared\SultanaBBQ.Shared.csproj" />
   </ItemGroup>
 
 </Project>
