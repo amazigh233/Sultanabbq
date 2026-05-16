@@ -1,0 +1,194 @@
+@page "/eigenaar/reserveringen"
+@using System.Net.Http.Headers
+@using SultanaBBQ.Shared
+@inject HttpClient Http
+
+<SeoHead Title="Eigenaar reserveringen | Sultana BBQ"
+         Description="Eigenaarspagina voor reserveringen van Sultana BBQ."
+         Path="/eigenaar/reserveringen" />
+
+<section class="owner-reservations-page">
+    <div class="owner-reservations-inner">
+        <div class="owner-reservations-header">
+            <div>
+                <p class="section-label">Eigenaar</p>
+                <h1>Reserveringen</h1>
+            </div>
+            @if (authorized)
+            {
+                <button class="btn-outline owner-refresh" @onclick="LoadReservations" disabled="@loading">Vernieuwen</button>
+            }
+        </div>
+
+        @if (!authorized)
+        {
+            <div class="owner-login">
+                <h2>Toegangscode</h2>
+                <div class="form-group">
+                    <label>Eigenaarscode</label>
+                    <input type="password" @bind="ownerCode" @bind:event="oninput" placeholder="Vul de code in" />
+                </div>
+                @if (!string.IsNullOrWhiteSpace(error))
+                {
+                    <div class="form-submit-error" role="alert">@error</div>
+                }
+                <button class="btn-gold btn-large" @onclick="Authorize" disabled="@(loading || string.IsNullOrWhiteSpace(ownerCode))">
+                    @(loading ? "Bezig..." : "Reserveringen bekijken")
+                </button>
+            </div>
+        }
+        else if (loading)
+        {
+            <div class="owner-empty">Reserveringen laden...</div>
+        }
+        else if (!string.IsNullOrWhiteSpace(error))
+        {
+            <div class="form-submit-error" role="alert">@error</div>
+        }
+        else if (reservations.Count == 0)
+        {
+            <div class="owner-empty">Er zijn nog geen reserveringen.</div>
+        }
+        else
+        {
+            <div class="owner-reservation-list">
+                @foreach (var reservation in reservations)
+                {
+                    <article class="owner-reservation-card">
+                        <div class="owner-reservation-main">
+                            <div>
+                                <div class="owner-reservation-title">@reservation.Name</div>
+                                <div class="owner-reservation-meta">
+                                    @reservation.Guests personen · @reservation.Date.ToString("dd-MM-yyyy") · @reservation.Time
+                                    @if (!string.IsNullOrWhiteSpace(reservation.TableName))
+                                    {
+                                        <span> · @reservation.TableName</span>
+                                    }
+                                </div>
+                            </div>
+                            <span class="owner-status @(reservation.Status == "confirmed" ? "confirmed" : "pending")">
+                                @(reservation.Status == "confirmed" ? "Bevestigd" : "Wacht op bevestiging")
+                            </span>
+                        </div>
+
+                        <div class="owner-reservation-details">
+                            <div><strong>E-mail</strong><a href="mailto:@reservation.Email">@reservation.Email</a></div>
+                            <div><strong>Telefoon</strong><a href="tel:@reservation.Phone">@reservation.Phone</a></div>
+                            <div><strong>Aangemaakt</strong><span>@reservation.CreatedAt.LocalDateTime.ToString("dd-MM-yyyy HH:mm")</span></div>
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(reservation.Notes))
+                        {
+                            <p class="owner-notes">@reservation.Notes</p>
+                        }
+
+                        @if (reservation.Status != "confirmed")
+                        {
+                            <button class="btn-gold owner-confirm"
+                                    @onclick="() => ConfirmReservation(reservation.Id)"
+                                    disabled="@confirmingIds.Contains(reservation.Id)">
+                                @(confirmingIds.Contains(reservation.Id) ? "Bevestigen..." : "Bevestigen")
+                            </button>
+                        }
+                    </article>
+                }
+            </div>
+        }
+    </div>
+</section>
+
+@code {
+    private string ownerCode = "";
+    private string error = "";
+    private bool authorized;
+    private bool loading;
+    private List<OwnerReservation> reservations = [];
+    private readonly HashSet<Guid> confirmingIds = [];
+
+    private async Task Authorize()
+    {
+        authorized = true;
+        await LoadReservations();
+
+        if (!string.IsNullOrWhiteSpace(error))
+        {
+            authorized = false;
+        }
+    }
+
+    private async Task LoadReservations()
+    {
+        loading = true;
+        error = "";
+
+        try
+        {
+            using var request = new HttpRequestMessage(HttpMethod.Get, "api/owner/reservations");
+            request.Headers.Add("X-Owner-Code", ownerCode);
+
+            var response = await Http.SendAsync(request);
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                error = "De eigenaarscode klopt niet.";
+                reservations = [];
+                return;
+            }
+
+            if (!response.IsSuccessStatusCode)
+            {
+                error = "Reserveringen konden niet worden geladen.";
+                reservations = [];
+                return;
+            }
+
+            reservations = await response.Content.ReadFromJsonAsync<List<OwnerReservation>>() ?? [];
+        }
+        catch
+        {
+            error = "Er is geen verbinding met de reserveringsserver.";
+            reservations = [];
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private async Task ConfirmReservation(Guid id)
+    {
+        confirmingIds.Add(id);
+        error = "";
+
+        try
+        {
+            using var request = new HttpRequestMessage(HttpMethod.Post, $"api/owner/reservations/{id}/confirm");
+            request.Headers.Add("X-Owner-Code", ownerCode);
+
+            var response = await Http.SendAsync(request);
+            if (!response.IsSuccessStatusCode)
+            {
+                var message = await response.Content.ReadFromJsonAsync<StaffMessageResponse>();
+                error = message?.Message ?? "De reservering kon niet worden bevestigd.";
+                return;
+            }
+
+            var updatedReservation = await response.Content.ReadFromJsonAsync<OwnerReservation>();
+            if (updatedReservation is not null)
+            {
+                var index = reservations.FindIndex(r => r.Id == updatedReservation.Id);
+                if (index >= 0)
+                {
+                    reservations[index] = updatedReservation;
+                }
+            }
+        }
+        catch
+        {
+            error = "Er is geen verbinding met de reserveringsserver.";
+        }
+        finally
+        {
+            confirmingIds.Remove(id);
+        }
+    }
+}

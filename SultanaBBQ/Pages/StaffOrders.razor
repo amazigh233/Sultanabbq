@@ -1,0 +1,214 @@
+@page "/personeel/orders"
+@using SultanaBBQ.Shared
+@inject HttpClient Http
+@inject NavigationManager Nav
+@inject StaffSessionService StaffSession
+
+<SeoHead Title="Open rekeningen | Sultana BBQ"
+         Description="Interne open rekeningen voor medewerkers van Sultana BBQ."
+         Path="/personeel/orders" />
+
+<section class="staff-page">
+    <div class="staff-shell">
+        <div class="staff-header">
+            <div>
+                <p class="section-label">Personeel</p>
+                <h1>Open rekeningen</h1>
+            </div>
+            @if (StaffSession.HasAccessCode)
+            {
+                <div class="staff-actions">
+                    <a class="btn-outline" href="/personeel/tafels">Tafels</a>
+                    <button class="btn-outline" type="button" @onclick="LoadOrders" disabled="@loading">Vernieuwen</button>
+                </div>
+            }
+        </div>
+
+        @if (!StaffSession.HasAccessCode)
+        {
+            <div class="owner-login">
+                <h2>Personeelscode</h2>
+                <div class="form-group">
+                    <label>Code</label>
+                    <input type="password" @bind="codeInput" @bind:event="oninput" placeholder="Vul de code in" />
+                </div>
+                @if (!string.IsNullOrWhiteSpace(error))
+                {
+                    <div class="form-submit-error" role="alert">@error</div>
+                }
+                <button class="btn-gold btn-large" type="button" @onclick="Authorize" disabled="@(loading || string.IsNullOrWhiteSpace(codeInput))">
+                    @(loading ? "Controleren..." : "Rekeningen openen")
+                </button>
+            </div>
+        }
+        else if (loading)
+        {
+            <div class="owner-empty">Open rekeningen laden...</div>
+        }
+        else
+        {
+            @if (!string.IsNullOrWhiteSpace(error))
+            {
+                <div class="form-submit-error" role="alert">@error</div>
+            }
+
+            @if (orders.Count == 0)
+            {
+                <div class="owner-empty">Er zijn geen open rekeningen.</div>
+            }
+            else
+            {
+                <div class="staff-order-list">
+                    @foreach (var order in orders)
+                    {
+                        <article class="staff-order-card">
+                            <div class="owner-reservation-main">
+                                <div>
+                                    <div class="owner-reservation-title">@order.TableName</div>
+                                    <div class="owner-reservation-meta">
+                                        Geopend om @order.CreatedAt.LocalDateTime.ToString("HH:mm") · @order.Items.Count regels
+                                    </div>
+                                    @if (!string.IsNullOrWhiteSpace(order.CustomerName) || !string.IsNullOrWhiteSpace(order.CustomerPhone))
+                                    {
+                                        <div class="owner-reservation-meta">
+                                            Klant: @DisplayCustomer(order)
+                                        </div>
+                                    }
+                                </div>
+                                <strong class="staff-order-total">€@order.Total.ToString("F2")</strong>
+                            </div>
+
+                            @if (!string.IsNullOrWhiteSpace(order.OrderNote))
+                            {
+                                <p class="owner-notes">@order.OrderNote</p>
+                            }
+
+                            <div class="staff-order-items">
+                                @foreach (var item in order.Items)
+                                {
+                                    <div>
+                                        <span>
+                                            @item.Quantity x @item.Name
+                                            @if (!string.IsNullOrWhiteSpace(item.Note))
+                                            {
+                                                <small> · @item.Note</small>
+                                            }
+                                        </span>
+                                        <strong>€@item.LineTotal.ToString("F2")</strong>
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="staff-actions">
+                                <a class="btn-outline" href="@($"/personeel/tafels/{order.TableId}/bestellen")">Wijzigen</a>
+                                <button class="btn-gold" type="button" @onclick="() => CompleteOrder(order.Id)" disabled="@completingIds.Contains(order.Id)">
+                                    @(completingIds.Contains(order.Id) ? "Afronden..." : "Afronden en bon")
+                                </button>
+                            </div>
+                        </article>
+                    }
+                </div>
+            }
+        }
+    </div>
+</section>
+
+@code {
+    private string codeInput = "";
+    private string error = "";
+    private bool loading;
+    private List<TableOrderDto> orders = [];
+    private readonly HashSet<Guid> completingIds = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (StaffSession.HasAccessCode)
+        {
+            await LoadOrders();
+        }
+    }
+
+    private async Task Authorize()
+    {
+        StaffSession.AccessCode = codeInput.Trim();
+        await LoadOrders();
+
+        if (!string.IsNullOrWhiteSpace(error))
+        {
+            StaffSession.AccessCode = "";
+        }
+    }
+
+    private async Task LoadOrders()
+    {
+        loading = true;
+        error = "";
+
+        try
+        {
+            orders = await SendForJson<List<TableOrderDto>>(HttpMethod.Get, "api/staff/orders/open") ?? [];
+        }
+        catch (UnauthorizedAccessException)
+        {
+            error = "De personeelscode klopt niet.";
+            orders = [];
+        }
+        catch
+        {
+            error = "Open rekeningen konden niet worden geladen.";
+            orders = [];
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private async Task CompleteOrder(Guid orderId)
+    {
+        completingIds.Add(orderId);
+        error = "";
+
+        try
+        {
+            var completed = await SendForJson<TableOrderDto>(HttpMethod.Post, $"api/staff/orders/{orderId}/complete");
+            if (completed is not null)
+            {
+                Nav.NavigateTo($"/personeel/orders/{completed.Id}/bon");
+            }
+        }
+        catch
+        {
+            error = "De rekening kon niet worden afgerond.";
+        }
+        finally
+        {
+            completingIds.Remove(orderId);
+        }
+    }
+
+    private async Task<T?> SendForJson<T>(HttpMethod method, string url)
+    {
+        using var request = new HttpRequestMessage(method, url);
+        request.Headers.Add("X-Owner-Code", StaffSession.AccessCode);
+
+        var response = await Http.SendAsync(request);
+        if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        {
+            throw new UnauthorizedAccessException();
+        }
+
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<T>();
+    }
+
+    private static string DisplayCustomer(TableOrderDto order)
+    {
+        if (!string.IsNullOrWhiteSpace(order.CustomerName) && !string.IsNullOrWhiteSpace(order.CustomerPhone))
+        {
+            return $"{order.CustomerName} · {order.CustomerPhone}";
+        }
+
+        return order.CustomerName ?? order.CustomerPhone ?? "";
+    }
+}

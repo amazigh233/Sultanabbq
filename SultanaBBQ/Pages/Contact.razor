@@ -1,0 +1,50 @@
+@page "/contact"
+@using SultanaBBQ.Services
+
+<LocalSeoPage Title="Contact Sultana BBQ Utrecht Overvecht | Route, bellen en openingstijden"
+              Description="Neem contact op met Sultana BBQ in Utrecht Overvecht. Bekijk adres, route, telefoonnummer, openingstijden, afhalen, bezorgen en reserveren."
+              Path="/contact"
+              H1="Contact met Sultana BBQ in Utrecht Overvecht"
+              Eyebrow="Adres, route en bellen"
+              Intro="Plan je bezoek aan Sultana BBQ aan de Zamenhofdreef 69 in Utrecht Overvecht. Bel direct, open de route, bekijk het menu of reserveer een tafel voor halal BBQ en grillgerechten."
+              Blocks="@Blocks"
+              Breadcrumbs="@Breadcrumbs"
+              PrimaryLinks="@PrimaryLinks" />
+
+@code {
+    private static readonly IReadOnlyList<SeoContentBlock> Blocks =
+    [
+        new("Adres en bereikbaarheid",
+        [
+            "Sultana BBQ bevindt zich aan de Zamenhofdreef 69, 3562 JV Utrecht, in Overvecht. De locatie is prettig bereikbaar voor gasten uit de wijk en voor bezoekers die vanuit andere delen van Utrecht komen. Open de route op je telefoon voordat je vertrekt, zodat je rekening kunt houden met actuele reistijd, verkeer en eventuele werkzaamheden in de buurt.",
+            "Kom je met de auto, controleer dan de parkeerregels in de directe omgeving. In stedelijke gebieden kunnen parkeertijden en tarieven veranderen. Kom je met de fiets of het openbaar vervoer, dan is de routeknop de makkelijkste manier om de beste verbinding naar het restaurant te vinden."
+        ]),
+        new("Bellen voor reserveren, afhalen of vragen",
+        [
+            "Wil je snel weten of er plek is, of wil je advies over een bestelling voor meerdere personen? Bel Sultana BBQ direct via het telefoonnummer op deze pagina. Telefonisch contact is vooral handig bij groepsreserveringen, allergievragen, drukke avonden of wanneer je een bestelling wilt afstemmen voordat je komt afhalen.",
+            "Voor gewone reserveringen kun je ook de reserveringspagina gebruiken. Daar geef je datum, tijd en aantal personen door. Voor afhalen kun je het menu bekijken en daarna via de bestelpagina je gerechten kiezen. Zo blijft het voor jou duidelijk en voor de keuken praktisch."
+        ]),
+        new("Openingstijden en beste moment om te komen",
+        [
+            "Sultana BBQ is dagelijks geopend van 11:00 tot 22:00. Rond etenstijd kan het drukker zijn, vooral wanneer veel gasten tegelijk willen afhalen of in het restaurant willen eten. Voor families en groepen is vooraf reserveren verstandig. Zo weet het team hoeveel gasten er komen en kan er rekening worden gehouden met zitplekken.",
+            "Als je vooral snel wilt eten, kies dan voor afhalen of bestellen. Wil je rustig zitten en meerdere grillgerechten delen, reserveer dan een tafel. De menukaart bevat zowel snelle gerechten als royale mixed grill en schotels, waardoor je gemakkelijk een keuze kunt maken die past bij je moment."
+        ]),
+        new("Lokale vragen over Sultana BBQ",
+        [
+            "Veel bezoekers zoeken naar een halal restaurant in Utrecht, een BBQ restaurant Utrecht of een restaurant in Overvecht waar je met familie of vrienden terechtkunt. Deze contactpagina bundelt daarom alle praktische informatie: adres, route, telefoon, openingstijden, menu, reserveren en afhalen. Dat voorkomt zoeken en maakt de stap naar een bezoek kleiner.",
+            "Heb je vragen over halal bereiding, ingredienten, groepsmogelijkheden of mixed grill? Neem contact op met het restaurant. Korte, concrete vragen zijn vaak telefonisch het snelst beantwoord."
+        ])
+    ];
+
+    private static readonly IReadOnlyList<BreadcrumbItem> Breadcrumbs =
+    [
+        new("Home", "/"),
+        new("Contact", "/contact")
+    ];
+
+    private static readonly IReadOnlyList<SeoLink> PrimaryLinks =
+    [
+        new("Route openen", RestaurantInfo.MapsUrl),
+        new("Bel direct", $"tel:{RestaurantInfo.PhoneHref}", "outline")
+    ];
+}

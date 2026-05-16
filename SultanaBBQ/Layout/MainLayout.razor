@@ -1,5 +1,5 @@
 ﻿@inherits LayoutComponentBase
-@inject IJSRuntime JS
+@using SultanaBBQ.Services
 
 <NavMenu />
 
@@ -7,25 +7,29 @@
     @Body
 </main>
 
+<nav class="mobile-cta-bar" aria-label="Snelle acties mobiel">
+    <a href="tel:@RestaurantInfo.PhoneHref">Bel</a>
+    <a href="@RestaurantInfo.MapsUrl" target="_blank" rel="noopener noreferrer">Route</a>
+    <a href="/menu">Menu</a>
+    <a href="/bestellen">Bestel</a>
+    <a href="/reserveren">Reserveer</a>
+</nav>
+
 <footer class="footer">
     <div class="footer-content">
         <div class="footer-logo">Sultana BBQ</div>
         <div class="footer-links">
             <a href="tel:+31685605933">+31 6 85605933</a>
+            <a href="/menu">Menu</a>
+            <a href="/afhalen-bezorgen">Afhalen &amp; bezorgen</a>
+            <a href="/cocktail-builder">Cocktail Builder</a>
+            <a href="/sauzenrad">Sauzenrad</a>
+            <a href="/halal-restaurant-utrecht">Halal restaurant Utrecht</a>
+            <a href="/mixed-grill-utrecht">Mixed grill Utrecht</a>
+            <a href="/restaurant-groepen-utrecht">Groepen</a>
             <a href="mailto:Sultanabbqinfo@gmail.com">Email</a>
-            <a href="https://bistroo.nl/utrecht/restaurants/sultana-bbq" target="_blank" rel="noopener noreferrer">Bestel Online</a>
+            <a href="/bestellen">Bestel online</a>
         </div>
         <div class="footer-copy">&copy; 2026 Sultana BBQ Utrecht. Alle rechten voorbehouden.</div>
     </div>
 </footer>
-
-@code {
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            await JS.InvokeVoidAsync("SultanaInterop.hidePreloader");
-            await JS.InvokeVoidAsync("SultanaAnimations.init");
-        }
-    }
-}

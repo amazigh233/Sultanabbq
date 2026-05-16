@@ -1,0 +1,50 @@
+@page "/halal-restaurant-utrecht"
+@using SultanaBBQ.Services
+
+<LocalSeoPage Title="Halal restaurant Utrecht | Sultana BBQ in Overvecht"
+              Description="Zoek je een halal restaurant in Utrecht? Sultana BBQ in Overvecht serveert halal BBQ, grillgerechten, mixed grill, schotels en gerechten voor families."
+              Path="/halal-restaurant-utrecht"
+              H1="Halal restaurant in Utrecht Overvecht"
+              Eyebrow="Halal BBQ en grill"
+              Intro="Sultana BBQ is een halal BBQ- en grillrestaurant in Utrecht Overvecht voor gasten die houden van vers gegrilde gerechten, mixed grill, schotels en een toegankelijke familiesfeer."
+              Blocks="@Blocks"
+              Breadcrumbs="@Breadcrumbs"
+              PrimaryLinks="@PrimaryLinks" />
+
+@code {
+    private static readonly IReadOnlyList<SeoContentBlock> Blocks =
+    [
+        new("Halal eten met de smaak van de grill",
+        [
+            "Wie zoekt naar een halal restaurant Utrecht wil meer dan alleen een lijst met gerechten. Je wilt weten of het eten past bij je voorkeuren, of je met familie kunt komen, of je kunt reserveren en of afhalen mogelijk is. Sultana BBQ combineert die praktische kant met een menu dat draait om BBQ, grill en Midden-Oosterse smaken. Denk aan kip shish, Adana kebab, kofta, lamskoteletten, falafel, burgers en schotels.",
+            "De keuken richt zich op halal gerechten die vers worden bereid en makkelijk te combineren zijn. Daardoor kun je licht eten met bijgerechten en salade, of juist uitgebreid tafelen met mixed grill en royale schotels. De smaken zijn kruidig, warm en herkenbaar zonder onnodig ingewikkeld te worden."
+        ]),
+        new("Restaurant in Overvecht voor families en vrienden",
+        [
+            "Sultana BBQ ligt in Utrecht Overvecht en is geschikt voor families, vrienden en kleine groepen. Dat is belangrijk, omdat veel gasten een halal restaurant zoeken waar iedereen zich comfortabel voelt. Je kunt kiezen voor een tafel in het restaurant, maar ook voor afhalen wanneer je thuis wilt eten. Voor groepen is reserveren verstandig, zeker rond drukke avonden.",
+            "Het menu is breed genoeg voor verschillende voorkeuren. Vleesliefhebbers kiezen grillgerechten of mixed grill, kipfans kiezen kip shish of halve kip, vegetariers kunnen terecht bij falafel, hummus en bijgerechten. Zo wordt samen eten makkelijker, ook wanneer niet iedereen hetzelfde wil."
+        ]),
+        new("Afhalen, bezorgen en reserveren",
+        [
+            "Naast eten in het restaurant kun je bij Sultana BBQ ook afhalen en, waar beschikbaar, bezorgen. Dat maakt het restaurant handig voor gasten uit Overvecht die na werk of studie snel een warme maaltijd willen meenemen. Bekijk eerst het menu en kies daarna of je bestelt, belt of reserveert.",
+            "Voor een avond uit is reserveren de beste keuze. Je weet dan zeker dat er rekening wordt gehouden met je gezelschap. Voor een snelle maaltijd is afhalen praktisch. De bestelpagina helpt je om gerechten te kiezen en je bestelling duidelijk door te geven."
+        ]),
+        new("Lokale keuze in Utrecht",
+        [
+            "Een goed halal restaurant in Utrecht hoeft niet alleen centraal in de binnenstad te liggen. Overvecht heeft veel bewoners, families en werkenden die dichtbij huis willen eten. Sultana BBQ speelt daarop in met een duidelijke locatie, bereikbare contactinformatie en een menu dat past bij lokale zoekopdrachten zoals halal eten Overvecht, BBQ restaurant Utrecht en grillrestaurant Utrecht.",
+            "Open de route als je direct wilt komen, bekijk het menu als je eerst wilt vergelijken of bel voor een snelle vraag. Zo wordt de stap naar je bezoek of bestelling klein."
+        ])
+    ];
+
+    private static readonly IReadOnlyList<BreadcrumbItem> Breadcrumbs =
+    [
+        new("Home", "/"),
+        new("Halal restaurant Utrecht", "/halal-restaurant-utrecht")
+    ];
+
+    private static readonly IReadOnlyList<SeoLink> PrimaryLinks =
+    [
+        new("Bekijk menu", "/menu"),
+        new("Reserveer tafel", "/reserveren", "outline")
+    ];
+}

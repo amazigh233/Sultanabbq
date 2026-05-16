@@ -1,0 +1,438 @@
+@page "/builder"
+@inject IJSRuntime JS
+@using System.Text
+@using System.Linq
+
+<PageTitle>Bouw Je Eigen Gerecht — Sultana BBQ</PageTitle>
+
+<section class="bdr-hero">
+    <div class="bdr-hero-inner">
+        <div class="section-label">Maak Je Perfecte Maaltijd</div>
+        <h1>Bouw Je Eigen <em class="accent">Gerecht</em></h1>
+        <p>Kies je base, eiwit, sauzen en toppings. Wij maken het vers voor je.</p>
+    </div>
+</section>
+
+<section class="bdr-section">
+    <div class="container">
+        <div class="bdr-layout">
+
+            <!-- Wizard -->
+            <div class="bdr-wizard">
+
+                <!-- Progress indicator -->
+                <div class="bdr-progress">
+                    @for (int i = 1; i <= TotalSteps; i++)
+                    {
+                        var step = i;
+                        <div class="bdr-progress-dot @(currentStep > step ? "done" : currentStep == step ? "active" : "")">
+                            @if (currentStep > step) { <span>&#10003;</span> }
+                            else { <span>@step</span> }
+                        </div>
+                        @if (step < TotalSteps)
+                        {
+                            <div class="bdr-progress-line @(currentStep > step ? "done" : "")"></div>
+                        }
+                    }
+                </div>
+                <p class="bdr-progress-label">Stap @Math.Min(currentStep, TotalSteps) van @TotalSteps</p>
+
+                <!-- Step content -->
+                @switch (currentStep)
+                {
+                    case 1:
+                        <div class="bdr-step-content">
+                            <h2 class="bdr-step-title">&#x1F953; Kies Je Base</h2>
+                            <p class="bdr-step-sub">Waarmee begin je jouw gerecht?</p>
+                            <div class="bdr-cards">
+                                @foreach (var opt in BasenOpties)
+                                {
+                                    var o = opt;
+                                    <button class="bdr-card @(selectedBase == o ? "selected" : "")" @onclick="() => selectedBase = o">
+                                        <span class="bdr-card-emoji">@o.Emoji</span>
+                                        <span class="bdr-card-name">@o.Name</span>
+                                        <span class="bdr-card-price">&#8364;@o.Price.ToString("F2")</span>
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                        break;
+
+                    case 2:
+                        <div class="bdr-step-content">
+                            <h2 class="bdr-step-title">&#x1F969; Kies Je Eiwit</h2>
+                            <p class="bdr-step-sub">Welk vlees of alternatief wil je?</p>
+                            <div class="bdr-cards">
+                                @foreach (var opt in EiwitOpties)
+                                {
+                                    var o = opt;
+                                    <button class="bdr-card @(selectedEiwit == o ? "selected" : "")" @onclick="() => selectedEiwit = o">
+                                        <span class="bdr-card-emoji">@o.Emoji</span>
+                                        <span class="bdr-card-name">@o.Name</span>
+                                        <span class="bdr-card-price">&#8364;@o.Price.ToString("F2")</span>
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                        break;
+
+                    case 3:
+                        <div class="bdr-step-content">
+                            <h2 class="bdr-step-title">&#x1FAD9; Kies Je Sauzen</h2>
+                            <p class="bdr-step-sub">Meerdere sauzen zijn gratis mogelijk.</p>
+                            <div class="bdr-cards bdr-cards-multi">
+                                @foreach (var opt in SausOpties)
+                                {
+                                    var o = opt;
+                                    <button class="bdr-card @(selectedSauzen.Contains(o) ? "selected" : "")" @onclick="() => ToggleOption(selectedSauzen, o)">
+                                        <span class="bdr-card-emoji">@o.Emoji</span>
+                                        <span class="bdr-card-name">@o.Name</span>
+                                        <span class="bdr-card-free">Gratis</span>
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                        break;
+
+                    case 4:
+                        <div class="bdr-step-content">
+                            <h2 class="bdr-step-title">&#x1F957; Kies Je Toppings</h2>
+                            <p class="bdr-step-sub">Meerdere toppings zijn gratis mogelijk.</p>
+                            <div class="bdr-cards bdr-cards-multi">
+                                @foreach (var opt in ToppingOpties)
+                                {
+                                    var o = opt;
+                                    <button class="bdr-card @(selectedToppings.Contains(o) ? "selected" : "")" @onclick="() => ToggleOption(selectedToppings, o)">
+                                        <span class="bdr-card-emoji">@o.Emoji</span>
+                                        <span class="bdr-card-name">@o.Name</span>
+                                        <span class="bdr-card-free">Gratis</span>
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                        break;
+
+                    case 5:
+                        <div class="bdr-step-content">
+                            <h2 class="bdr-step-title">&#x2795; Extra's (Optioneel)</h2>
+                            <p class="bdr-step-sub">Maak je gerecht compleet.</p>
+                            <div class="bdr-cards bdr-cards-multi">
+                                @foreach (var opt in ExtraOpties)
+                                {
+                                    var o = opt;
+                                    <button class="bdr-card @(selectedExtras.Contains(o) ? "selected" : "")" @onclick="() => ToggleOption(selectedExtras, o)">
+                                        <span class="bdr-card-emoji">@o.Emoji</span>
+                                        <span class="bdr-card-name">@o.Name</span>
+                                        <span class="bdr-card-price">+&#8364;@o.Price.ToString("F2")</span>
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                        break;
+
+                    case 6:
+                        <div class="bdr-step-content bdr-summary">
+                            <h2 class="bdr-step-title">&#x2705; Jouw Gerecht</h2>
+                            <p class="bdr-step-sub">Controleer je bestelling en vul je gegevens in.</p>
+
+                            <div class="bdr-summary-overview">
+                                <div class="bdr-summary-row">
+                                    <span class="bdr-summary-label">Base</span>
+                                    <span>@selectedBase!.Emoji @selectedBase.Name</span>
+                                </div>
+                                <div class="bdr-summary-row">
+                                    <span class="bdr-summary-label">Eiwit</span>
+                                    <span>@selectedEiwit!.Emoji @selectedEiwit.Name</span>
+                                </div>
+                                @if (selectedSauzen.Count > 0)
+                                {
+                                    <div class="bdr-summary-row">
+                                        <span class="bdr-summary-label">Sauzen</span>
+                                        <span>@string.Join(", ", selectedSauzen.Select(s => s.Name))</span>
+                                    </div>
+                                }
+                                @if (selectedToppings.Count > 0)
+                                {
+                                    <div class="bdr-summary-row">
+                                        <span class="bdr-summary-label">Toppings</span>
+                                        <span>@string.Join(", ", selectedToppings.Select(t => t.Name))</span>
+                                    </div>
+                                }
+                                @if (selectedExtras.Count > 0)
+                                {
+                                    <div class="bdr-summary-row">
+                                        <span class="bdr-summary-label">Extra's</span>
+                                        <span>@string.Join(", ", selectedExtras.Select(e => $"{e.Name} (+€{e.Price:F2})"))</span>
+                                    </div>
+                                }
+                                <div class="bdr-summary-total">
+                                    <span>Totaal</span>
+                                    <span class="bdr-total-amount">&#8364;@Total.ToString("F2")</span>
+                                </div>
+                            </div>
+
+                            <div class="bdr-summary-form">
+                                <div class="form-group">
+                                    <label>Naam *</label>
+                                    <input type="text" @bind="klantNaam" placeholder="Uw naam"
+                                           class="@(showSummaryErrors && string.IsNullOrWhiteSpace(klantNaam) ? "error" : "")" />
+                                    @if (showSummaryErrors && string.IsNullOrWhiteSpace(klantNaam))
+                                    {
+                                        <span class="form-error">Naam is verplicht</span>
+                                    }
+                                </div>
+                                <div class="form-group">
+                                    <label>Telefoonnummer *</label>
+                                    <input type="tel" @bind="klantTelefoon" placeholder="+31 6 12345678"
+                                           class="@(showSummaryErrors && string.IsNullOrWhiteSpace(klantTelefoon) ? "error" : "")" />
+                                    @if (showSummaryErrors && string.IsNullOrWhiteSpace(klantTelefoon))
+                                    {
+                                        <span class="form-error">Telefoonnummer is verplicht</span>
+                                    }
+                                </div>
+                            </div>
+
+                            <button class="bdr-wa-btn" @onclick="PlaceOrder">
+                                Bestellen via WhatsApp &#8599;
+                            </button>
+                        </div>
+                        break;
+                }
+
+                <!-- Navigation buttons -->
+                @if (currentStep <= TotalSteps)
+                {
+                    <div class="bdr-nav">
+                        @if (currentStep > 1)
+                        {
+                            <button class="bdr-btn-back" @onclick="PrevStep">&#8592; Terug</button>
+                        }
+                        else
+                        {
+                            <span></span>
+                        }
+                        <button class="bdr-btn-next @(!CanAdvance ? "disabled" : "")" @onclick="NextStep" disabled="@(!CanAdvance)">
+                            @(currentStep == TotalSteps ? "Bekijk Samenvatting &#8594;" : "Volgende &#8594;")
+                        </button>
+                    </div>
+                }
+                @if (currentStep == 6)
+                {
+                    <div class="bdr-nav bdr-nav-summary">
+                        <button class="bdr-btn-back" @onclick="PrevStep">&#8592; Terug</button>
+                        <button class="bdr-btn-back" @onclick="StartOver">Opnieuw Beginnen</button>
+                    </div>
+                }
+
+            </div>
+
+            <!-- Live preview sidebar -->
+            <aside class="bdr-preview">
+                <h3 class="bdr-preview-title">&#x1F37D;&#xFE0F; Jouw Gerecht</h3>
+
+                @if (selectedBase != null)
+                {
+                    <div class="bdr-preview-row">
+                        <span class="bdr-preview-label">Base</span>
+                        <span>@selectedBase.Emoji @selectedBase.Name</span>
+                    </div>
+                }
+                else
+                {
+                    <p class="bdr-preview-empty">Begin met het kiezen van een base.</p>
+                }
+
+                @if (selectedEiwit != null)
+                {
+                    <div class="bdr-preview-row">
+                        <span class="bdr-preview-label">Eiwit</span>
+                        <span>@selectedEiwit.Emoji @selectedEiwit.Name</span>
+                    </div>
+                }
+
+                @if (selectedSauzen.Count > 0)
+                {
+                    <div class="bdr-preview-row">
+                        <span class="bdr-preview-label">Sauzen</span>
+                        <div class="bdr-tags">
+                            @foreach (var s in selectedSauzen)
+                            {
+                                <span class="bdr-tag">@s.Name</span>
+                            }
+                        </div>
+                    </div>
+                }
+
+                @if (selectedToppings.Count > 0)
+                {
+                    <div class="bdr-preview-row">
+                        <span class="bdr-preview-label">Toppings</span>
+                        <div class="bdr-tags">
+                            @foreach (var t in selectedToppings)
+                            {
+                                <span class="bdr-tag">@t.Name</span>
+                            }
+                        </div>
+                    </div>
+                }
+
+                @if (selectedExtras.Count > 0)
+                {
+                    <div class="bdr-preview-row">
+                        <span class="bdr-preview-label">Extra's</span>
+                        <div class="bdr-tags">
+                            @foreach (var e in selectedExtras)
+                            {
+                                <span class="bdr-tag">@e.Name</span>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <div class="bdr-price-bar">
+                    <span>Totaal</span>
+                    <span class="bdr-price-amount">&#8364;@Total.ToString("F2")</span>
+                </div>
+            </aside>
+
+        </div>
+    </div>
+</section>
+
+@code {
+    private record BuilderOption(string Name, string Emoji, decimal Price);
+
+    private static readonly BuilderOption[] BasenOpties =
+    [
+        new("Pita",        "🫓", 2.50m),
+        new("Wrap",        "🌯", 2.50m),
+        new("Döner Brood", "🍞", 2.00m),
+        new("Salade",      "🥗", 1.50m),
+    ];
+
+    private static readonly BuilderOption[] EiwitOpties =
+    [
+        new("Kip Shawarma", "🍗", 4.50m),
+        new("Lam Shawarma", "🥩", 5.00m),
+        new("Adana Kebab",  "🔥", 5.00m),
+        new("Falafel",      "🧆", 3.50m),
+        new("Gemengd",      "🍽️",  5.50m),
+    ];
+
+    private static readonly BuilderOption[] SausOpties =
+    [
+        new("Hummus",       "🟡", 0m),
+        new("Knoflooksaus", "🤍", 0m),
+        new("Tahini",       "🟤", 0m),
+        new("Harissa",      "🔴", 0m),
+        new("Yoghurtsaus",  "⚪", 0m),
+    ];
+
+    private static readonly BuilderOption[] ToppingOpties =
+    [
+        new("Sla & Tomaat", "🥬", 0m),
+        new("Rode Ui",      "🟣", 0m),
+        new("Augurk",       "🥒", 0m),
+        new("Peterselie",   "🌿", 0m),
+        new("Sumac Ui",     "🫒", 0m),
+    ];
+
+    private static readonly BuilderOption[] ExtraOpties =
+    [
+        new("Extra Kaas",  "🧀", 1.50m),
+        new("Extra Vlees", "🥩", 1.50m),
+        new("Extra Saus",  "🫙", 1.50m),
+    ];
+
+    private int currentStep = 1;
+    private const int TotalSteps = 5;
+
+    private BuilderOption? selectedBase;
+    private BuilderOption? selectedEiwit;
+    private List<BuilderOption> selectedSauzen   = new();
+    private List<BuilderOption> selectedToppings = new();
+    private List<BuilderOption> selectedExtras   = new();
+
+    private string klantNaam     = string.Empty;
+    private string klantTelefoon = string.Empty;
+    private bool showSummaryErrors = false;
+
+    private decimal Total =>
+        (selectedBase?.Price  ?? 0) +
+        (selectedEiwit?.Price ?? 0) +
+        selectedExtras.Sum(e => e.Price);
+
+    private bool CanAdvance => currentStep switch
+    {
+        1 => selectedBase  != null,
+        2 => selectedEiwit != null,
+        _ => true
+    };
+
+    private async Task NextStep()
+    {
+        if (!CanAdvance) return;
+        currentStep++;
+        StateHasChanged();
+        await JS.InvokeVoidAsync("SultanaInterop.animateBuilderStep", ".bdr-step-content");
+    }
+
+    private void PrevStep()
+    {
+        if (currentStep > 1) currentStep--;
+    }
+
+    private void StartOver()
+    {
+        currentStep = 1;
+        selectedBase = null;
+        selectedEiwit = null;
+        selectedSauzen.Clear();
+        selectedToppings.Clear();
+        selectedExtras.Clear();
+        klantNaam = string.Empty;
+        klantTelefoon = string.Empty;
+        showSummaryErrors = false;
+    }
+
+    private void ToggleOption(List<BuilderOption> list, BuilderOption option)
+    {
+        if (list.Contains(option)) list.Remove(option);
+        else list.Add(option);
+    }
+
+    private async Task PlaceOrder()
+    {
+        showSummaryErrors = true;
+        if (string.IsNullOrWhiteSpace(klantNaam) || string.IsNullOrWhiteSpace(klantTelefoon))
+            return;
+
+        await JS.InvokeVoidAsync("SultanaInterop.openUrl", BuildWhatsAppUrl());
+    }
+
+    private string BuildWhatsAppUrl()
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine("Hallo Sultana BBQ! 🔥 Ik wil een gerecht samenstellen via de Gerecht Builder:");
+        sb.AppendLine();
+        sb.AppendLine($"🫓 *Base:* {selectedBase!.Name}");
+        sb.AppendLine($"🥩 *Eiwit:* {selectedEiwit!.Name}");
+
+        if (selectedSauzen.Count > 0)
+            sb.AppendLine($"🫙 *Sauzen:* {string.Join(", ", selectedSauzen.Select(s => s.Name))}");
+
+        if (selectedToppings.Count > 0)
+            sb.AppendLine($"🥗 *Toppings:* {string.Join(", ", selectedToppings.Select(t => t.Name))}");
+
+        if (selectedExtras.Count > 0)
+            sb.AppendLine($"➕ *Extra's:* {string.Join(", ", selectedExtras.Select(e => $"{e.Name} (+€{e.Price:F2})"))}");
+
+        sb.AppendLine();
+        sb.AppendLine($"💰 *Totaal: €{Total:F2}*");
+        sb.AppendLine();
+        sb.AppendLine($"Naam: {klantNaam.Trim()}");
+        sb.AppendLine($"Telefoon: {klantTelefoon.Trim()}");
+
+        return $"https://wa.me/31685605933?text={Uri.EscapeDataString(sb.ToString())}";
+    }
+}

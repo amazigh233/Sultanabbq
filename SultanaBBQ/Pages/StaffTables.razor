@@ -1,0 +1,282 @@
+@page "/personeel/tafels"
+@using System.Net.Http.Headers
+@using SultanaBBQ.Shared
+@inject HttpClient Http
+@inject NavigationManager Nav
+@inject StaffSessionService StaffSession
+
+<SeoHead Title="Personeel tafels | Sultana BBQ"
+         Description="Personeelspagina voor tafels en tafelbeheer van Sultana BBQ."
+         Path="/personeel/tafels" />
+
+<section class="staff-page">
+    <div class="staff-shell">
+        <div class="staff-header">
+            <div>
+                <p class="section-label">Personeel</p>
+                <h1>Tafels</h1>
+            </div>
+            @if (StaffSession.HasAccessCode)
+            {
+                <div class="staff-actions">
+                    <a class="btn-outline" href="/personeel/orders">Open rekeningen</a>
+                    <button class="btn-outline" type="button" @onclick="LoadAll" disabled="@loading">Vernieuwen</button>
+                </div>
+            }
+        </div>
+
+        @if (!StaffSession.HasAccessCode)
+        {
+            <div class="owner-login">
+                <h2>Personeelscode</h2>
+                <div class="form-group">
+                    <label>Code</label>
+                    <input type="password" @bind="codeInput" @bind:event="oninput" placeholder="Vul de code in" />
+                </div>
+                @if (!string.IsNullOrWhiteSpace(error))
+                {
+                    <div class="form-submit-error" role="alert">@error</div>
+                }
+                <button class="btn-gold btn-large" type="button" @onclick="Authorize" disabled="@(loading || string.IsNullOrWhiteSpace(codeInput))">
+                    @(loading ? "Controleren..." : "Tafels openen")
+                </button>
+            </div>
+        }
+        else
+        {
+            @if (!string.IsNullOrWhiteSpace(error))
+            {
+                <div class="form-submit-error" role="alert">@error</div>
+            }
+
+            <div class="staff-grid">
+                <div class="staff-panel">
+                    <div class="staff-section-heading">
+                        <h2>Tafeloverzicht</h2>
+                        <span>@statuses.Count tafels</span>
+                    </div>
+
+                    @if (loading)
+                    {
+                        <div class="owner-empty">Tafels laden...</div>
+                    }
+                    else if (statuses.Count == 0)
+                    {
+                        <div class="owner-empty">Er zijn nog geen tafels.</div>
+                    }
+                    else
+                    {
+                        <div class="table-tile-grid">
+                            @foreach (var table in statuses)
+                            {
+                                <button type="button"
+                                        class="table-tile @table.Status"
+                                        disabled="@(!table.IsActive)"
+                                        @onclick="() => OpenTable(table.Id)">
+                                    <span class="table-tile-name">@table.Name</span>
+                                    <span class="table-tile-capacity">@table.Capacity personen</span>
+                                    <span class="table-tile-status">@StatusLabel(table)</span>
+                                    @if (table.OpenOrderTotal > 0)
+                                    {
+                                        <strong>€@table.OpenOrderTotal.ToString("F2")</strong>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(table.ReservationName))
+                                    {
+                                        <small>@table.ReservationTime · @table.ReservationName</small>
+                                    }
+                                </button>
+                            }
+                        </div>
+                    }
+                </div>
+
+                <aside class="staff-panel">
+                    <div class="staff-section-heading">
+                        <h2>Tafelbeheer</h2>
+                        <span>@(editingTable is null ? "Nieuw" : "Wijzigen")</span>
+                    </div>
+
+                    <div class="order-form">
+                        <label>
+                            Naam
+                            <input @bind="tableName" placeholder="Tafel 1" />
+                        </label>
+                        <label>
+                            Capaciteit
+                            <input type="number" min="1" max="40" @bind="tableCapacity" />
+                        </label>
+                        <label class="staff-checkbox">
+                            <input type="checkbox" @bind="tableIsActive" />
+                            Actief
+                        </label>
+                    </div>
+
+                    <div class="staff-actions">
+                        <button class="btn-gold" type="button" @onclick="SaveTable" disabled="@savingTable">
+                            @(savingTable ? "Opslaan..." : editingTable is null ? "Tafel toevoegen" : "Wijzigingen opslaan")
+                        </button>
+                        @if (editingTable is not null)
+                        {
+                            <button class="btn-outline" type="button" @onclick="ResetTableForm">Annuleren</button>
+                        }
+                    </div>
+
+                    <div class="staff-table-list">
+                        @foreach (var table in tables)
+                        {
+                            <button type="button" class="staff-table-row" @onclick="() => EditTable(table)">
+                                <span>@table.Name</span>
+                                <small>@table.Capacity personen · @(table.IsActive ? "Actief" : "Inactief")</small>
+                            </button>
+                        }
+                    </div>
+                </aside>
+            </div>
+        }
+    </div>
+</section>
+
+@code {
+    private string codeInput = "";
+    private string error = "";
+    private bool loading;
+    private bool savingTable;
+    private List<TableStatusDto> statuses = [];
+    private List<DiningTableDto> tables = [];
+    private DiningTableDto? editingTable;
+    private string tableName = "";
+    private int tableCapacity = 4;
+    private bool tableIsActive = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (StaffSession.HasAccessCode)
+        {
+            await LoadAll();
+        }
+    }
+
+    private async Task Authorize()
+    {
+        StaffSession.AccessCode = codeInput.Trim();
+        await LoadAll();
+
+        if (!string.IsNullOrWhiteSpace(error))
+        {
+            StaffSession.AccessCode = "";
+        }
+    }
+
+    private async Task LoadAll()
+    {
+        loading = true;
+        error = "";
+
+        try
+        {
+            statuses = await SendForJson<List<TableStatusDto>>(HttpMethod.Get, "api/staff/tables/status") ?? [];
+            tables = await SendForJson<List<DiningTableDto>>(HttpMethod.Get, "api/staff/tables") ?? [];
+        }
+        catch (UnauthorizedAccessException)
+        {
+            error = "De personeelscode klopt niet.";
+            statuses = [];
+            tables = [];
+        }
+        catch
+        {
+            error = "Tafels konden niet worden geladen.";
+            statuses = [];
+            tables = [];
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private async Task SaveTable()
+    {
+        savingTable = true;
+        error = "";
+
+        try
+        {
+            var request = new DiningTableRequest(tableName.Trim(), tableCapacity, tableIsActive);
+            if (editingTable is null)
+            {
+                await SendForJson<DiningTableDto>(HttpMethod.Post, "api/staff/tables", request);
+            }
+            else
+            {
+                await SendForJson<DiningTableDto>(HttpMethod.Put, $"api/staff/tables/{editingTable.Id}", request);
+            }
+
+            ResetTableForm();
+            await LoadAll();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            error = "De personeelscode klopt niet.";
+            StaffSession.AccessCode = "";
+        }
+        catch
+        {
+            error = "De tafel kon niet worden opgeslagen. Controleer naam en capaciteit.";
+        }
+        finally
+        {
+            savingTable = false;
+        }
+    }
+
+    private void EditTable(DiningTableDto table)
+    {
+        editingTable = table;
+        tableName = table.Name;
+        tableCapacity = table.Capacity;
+        tableIsActive = table.IsActive;
+    }
+
+    private void ResetTableForm()
+    {
+        editingTable = null;
+        tableName = "";
+        tableCapacity = 4;
+        tableIsActive = true;
+    }
+
+    private void OpenTable(Guid tableId)
+    {
+        Nav.NavigateTo($"/personeel/tafels/{tableId}/bestellen");
+    }
+
+    private async Task<T?> SendForJson<T>(HttpMethod method, string url, object? body = null)
+    {
+        using var request = new HttpRequestMessage(method, url);
+        request.Headers.Add("X-Owner-Code", StaffSession.AccessCode);
+
+        if (body is not null)
+        {
+            request.Content = JsonContent.Create(body);
+        }
+
+        var response = await Http.SendAsync(request);
+        if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        {
+            throw new UnauthorizedAccessException();
+        }
+
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<T>();
+    }
+
+    private static string StatusLabel(TableStatusDto table) =>
+        table.Status switch
+        {
+            "occupied" => "Bezet",
+            "reserved" => "Gereserveerd",
+            "inactive" => "Inactief",
+            _ => "Vrij"
+        };
+}

@@ -1,0 +1,154 @@
+@page "/personeel/orders/{OrderId:guid}/bon"
+@using SultanaBBQ.Shared
+@inject HttpClient Http
+@inject IJSRuntime JS
+@inject StaffSessionService StaffSession
+
+<SeoHead Title="Bon | Sultana BBQ"
+         Description="Printbare bon voor een afgeronde tafelrekening."
+         Path="/personeel/orders/bon" />
+
+<section class="staff-page receipt-page">
+    <div class="staff-shell receipt-shell">
+        @if (!StaffSession.HasAccessCode)
+        {
+            <div class="owner-login no-print">
+                <h2>Personeelscode</h2>
+                <div class="form-group">
+                    <label>Code</label>
+                    <input type="password" @bind="codeInput" @bind:event="oninput" placeholder="Vul de code in" />
+                </div>
+                @if (!string.IsNullOrWhiteSpace(error))
+                {
+                    <div class="form-submit-error" role="alert">@error</div>
+                }
+                <button class="btn-gold btn-large" type="button" @onclick="Authorize" disabled="@(loading || string.IsNullOrWhiteSpace(codeInput))">
+                    @(loading ? "Controleren..." : "Bon openen")
+                </button>
+            </div>
+        }
+        else if (loading)
+        {
+            <div class="owner-empty no-print">Bon laden...</div>
+        }
+        else if (!string.IsNullOrWhiteSpace(error))
+        {
+            <div class="form-submit-error no-print" role="alert">@error</div>
+        }
+        else if (receipt is not null)
+        {
+            <div class="receipt-actions no-print">
+                <a class="btn-outline" href="/personeel/tafels">Tafels</a>
+                <a class="btn-outline" href="/personeel/orders">Open rekeningen</a>
+                <button class="btn-gold" type="button" @onclick="Print">Print bon</button>
+            </div>
+
+            <article class="receipt-card">
+                <header>
+                    <h1>Sultana BBQ</h1>
+                    <p>Zamenhofdreef 69 · 3562 JV Utrecht</p>
+                    <p>+31 6 85605933</p>
+                </header>
+
+                <div class="receipt-meta">
+                    <div><span>Tafel</span><strong>@receipt.TableName</strong></div>
+                    <div><span>Datum</span><strong>@receipt.CompletedAt.LocalDateTime.ToString("dd-MM-yyyy")</strong></div>
+                    <div><span>Tijd</span><strong>@receipt.CompletedAt.LocalDateTime.ToString("HH:mm")</strong></div>
+                    <div><span>Bon</span><strong>@receipt.OrderId.ToString()[..8]</strong></div>
+                </div>
+
+                <div class="receipt-lines">
+                    @foreach (var item in receipt.Items)
+                    {
+                        <div class="receipt-line">
+                            <div>
+                                <strong>@item.Quantity x @item.Name</strong>
+                                <span>€@item.UnitPrice.ToString("F2") per stuk</span>
+                            </div>
+                            <strong>€@item.LineTotal.ToString("F2")</strong>
+                        </div>
+                    }
+                </div>
+
+                <footer class="receipt-total">
+                    <span>Totaal</span>
+                    <strong>€@receipt.Total.ToString("F2")</strong>
+                </footer>
+
+                <p class="receipt-thanks">Bedankt en graag tot ziens.</p>
+            </article>
+        }
+    </div>
+</section>
+
+@code {
+    [Parameter]
+    public Guid OrderId { get; set; }
+
+    private string codeInput = "";
+    private string error = "";
+    private bool loading;
+    private ReceiptDto? receipt;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (StaffSession.HasAccessCode)
+        {
+            await LoadReceipt();
+        }
+    }
+
+    private async Task Authorize()
+    {
+        StaffSession.AccessCode = codeInput.Trim();
+        await LoadReceipt();
+
+        if (!string.IsNullOrWhiteSpace(error))
+        {
+            StaffSession.AccessCode = "";
+        }
+    }
+
+    private async Task LoadReceipt()
+    {
+        loading = true;
+        error = "";
+
+        try
+        {
+            receipt = await SendForJson<ReceiptDto>(HttpMethod.Get, $"api/staff/orders/{OrderId}/receipt");
+        }
+        catch (UnauthorizedAccessException)
+        {
+            error = "De personeelscode klopt niet.";
+        }
+        catch
+        {
+            error = "De bon kon niet worden geladen. Controleer of de rekening is afgerond.";
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private async Task Print()
+    {
+        await JS.InvokeVoidAsync("window.print");
+    }
+
+    private async Task<T?> SendForJson<T>(HttpMethod method, string url)
+    {
+        using var request = new HttpRequestMessage(method, url);
+        request.Headers.Add("X-Owner-Code", StaffSession.AccessCode);
+
+        var response = await Http.SendAsync(request);
+        if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        {
+            throw new UnauthorizedAccessException();
+        }
+
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<T>();
+    }
+}

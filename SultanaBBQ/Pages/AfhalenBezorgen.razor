@@ -1,0 +1,50 @@
+@page "/afhalen-bezorgen"
+@using SultanaBBQ.Services
+
+<LocalSeoPage Title="Afhalen en bezorgen Sultana BBQ Utrecht | Halal BBQ Overvecht"
+              Description="Bestel halal BBQ, mixed grill en grillgerechten voor afhalen of bezorgen bij Sultana BBQ in Utrecht Overvecht. Bekijk menu, bel direct of bestel online."
+              Path="/afhalen-bezorgen"
+              H1="Afhalen en bezorgen bij Sultana BBQ"
+              Eyebrow="Halal BBQ afhalen Utrecht"
+              Intro="Zin in halal BBQ, mixed grill of een warme schotel zonder lang te wachten? Bij Sultana BBQ in Utrecht Overvecht kun je eten afhalen, online bestellen of een tafel reserveren als je liever in het restaurant eet."
+              Blocks="@Blocks"
+              Breadcrumbs="@Breadcrumbs"
+              PrimaryLinks="@PrimaryLinks" />
+
+@code {
+    private static readonly IReadOnlyList<SeoContentBlock> Blocks =
+    [
+        new("Halal BBQ afhalen in Utrecht Overvecht",
+        [
+            "Sultana BBQ maakt afhalen eenvoudig voor gasten uit Overvecht en de rest van Utrecht. Je kiest uit halal grillgerechten, mixed grill, kipgerechten, burgers, schotels en bijgerechten. De gerechten zijn geschikt voor een snelle maaltijd thuis, een avond met familie of een spontane bestelling voor collega’s. Omdat het menu uit echte tekst bestaat, kun je snel zien wat er beschikbaar is en welke gerechten goed bij elkaar passen.",
+            "Afhalen is vooral handig wanneer je geen bezorgtijd wilt afwachten of wanneer je onderweg bent in de buurt van de Zamenhofdreef. Bestel vooraf via de bestelpagina of bel direct als je vragen hebt over bereiding, allergenen of drukte. Het team kan je helpen met een praktische keuze, bijvoorbeeld een mixed grill voor twee personen, een kipgerecht met rijst of een schotel met salade en saus."
+        ]),
+        new("Bezorgen en bestellen zonder gedoe",
+        [
+            "Wie zoekt naar afhalen BBQ Utrecht of halal eten Overvecht wil vooral duidelijkheid: wat kan ik bestellen, hoe snel kan het klaar zijn en waar haal ik het op? Daarom staan de belangrijkste acties op deze pagina dicht bij elkaar. Bekijk eerst het menu, kies je gerechten en plaats je bestelling. Voor bezorging kun je gebruikmaken van de beschikbare bestelopties of de externe bestelpartner als die op dat moment actief is.",
+            "De gerechten zijn ontworpen om goed mee te nemen. Schotels, wraps, burgers en kipgerechten blijven overzichtelijk verpakt, terwijl mixed grill en grotere schalen ideaal zijn om thuis te delen. Voor drukke momenten is vooraf bestellen verstandig. Zo voorkom je wachttijd en weet het restaurant precies wanneer je jouw bestelling wilt ophalen."
+        ]),
+        new("Voor families, groepen en liefhebbers van mixed grill",
+        [
+            "Afhalen bij Sultana BBQ is niet alleen bedoeld voor een snelle solo-maaltijd. Families en groepen kiezen vaak voor combinaties van grillgerechten, bijgerechten en dranken. De mixed grill is daarbij een logische keuze, omdat je meerdere smaken op tafel zet: kip, vlees, gekruide spiesen, rijst, salade, brood en sauzen. Dat maakt het makkelijk om samen te eten zonder dat iedereen exact hetzelfde hoeft te bestellen.",
+            "Wil je met een grotere groep eten, dan is reserveren in het restaurant vaak de beste optie. Wil je thuis eten, bel dan vooraf voor advies over hoeveelheden. Zo blijft de bestelling royaal, maar voorkom je verspilling."
+        ]),
+        new("Bereikbaarheid en parkeren",
+        [
+            "Sultana BBQ ligt aan de Zamenhofdreef 69 in Utrecht Overvecht. De locatie is goed bereikbaar vanuit Overvecht en omliggende wijken. Kom je met de auto, controleer dan ter plekke de actuele parkeerregels in de buurt. Kom je lopend, met de fiets of het openbaar vervoer, open dan de route via Google Maps voor de snelste actuele route.",
+            "Voor nieuwe gasten is het handig om eerst de contactpagina te bekijken. Daar vind je adres, telefoonnummer, openingstijden en routeknop. Zo weet je precies waar je moet zijn voordat je jouw BBQ-bestelling ophaalt."
+        ])
+    ];
+
+    private static readonly IReadOnlyList<BreadcrumbItem> Breadcrumbs =
+    [
+        new("Home", "/"),
+        new("Afhalen & bezorgen", "/afhalen-bezorgen")
+    ];
+
+    private static readonly IReadOnlyList<SeoLink> PrimaryLinks =
+    [
+        new("Bestel afhalen", "/bestellen"),
+        new("Bekijk menu", "/menu", "outline")
+    ];
+}

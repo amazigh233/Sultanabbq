@@ -1,0 +1,50 @@
+@page "/bbq-restaurant-overvecht"
+@using SultanaBBQ.Services
+
+<LocalSeoPage Title="BBQ restaurant Overvecht | Sultana BBQ Utrecht"
+              Description="Sultana BBQ is een BBQ restaurant in Utrecht Overvecht voor halal grillgerechten, mixed grill, kip, vlees, schotels, afhalen en reserveren."
+              Path="/bbq-restaurant-overvecht"
+              H1="BBQ restaurant in Overvecht"
+              Eyebrow="Sultana BBQ Utrecht"
+              Intro="Zoek je een BBQ restaurant in Overvecht waar je halal grillgerechten, mixed grill en schotels kunt eten of afhalen? Sultana BBQ brengt vuur, smaak en gastvrijheid samen aan de Zamenhofdreef."
+              Blocks="@Blocks"
+              Breadcrumbs="@Breadcrumbs"
+              PrimaryLinks="@PrimaryLinks" />
+
+@code {
+    private static readonly IReadOnlyList<SeoContentBlock> Blocks =
+    [
+        new("BBQ restaurant voor de buurt",
+        [
+            "Sultana BBQ is een BBQ restaurant in Utrecht Overvecht met een menu dat draait om gegrilde gerechten, warme kruiden en royale porties. De combinatie van halal BBQ, kipgerechten, vleesgerechten en mixed grill maakt het restaurant geschikt voor verschillende momenten: een snelle maaltijd, een familiebezoek, afhalen na werk of een avond uit met vrienden.",
+            "De locatie aan de Zamenhofdreef is praktisch voor gasten uit Overvecht en omliggende wijken. Je hoeft niet naar het centrum om een grillrestaurant in Utrecht te vinden. Het menu is lokaal, direct en duidelijk: kies je gerecht, bepaal of je blijft eten of afhaalt en regel de rest via de knoppen op de website."
+        ]),
+        new("Grillgerechten en mixed grill",
+        [
+            "Een BBQ restaurant wordt beoordeeld op de kwaliteit van de grill. Bij Sultana BBQ ligt de nadruk op gerechten die goed passen bij vuur en marinade: Adana kebab, kofta, lamskoteletten, kip shish taouk en mixed grill. De mixed grill is extra geschikt wanneer je meerdere smaken wilt delen of wanneer je met een groep komt eten.",
+            "Bijgerechten zoals hummus, baba ganoush, tabbouleh, friet en salade maken de maaltijd compleet. Daardoor kun je zowel stevig eten als lichter combineren. Voor families is dat prettig, omdat volwassenen en kinderen meestal andere voorkeuren hebben."
+        ]),
+        new("Afhalen en bezorgen in Overvecht",
+        [
+            "Niet elke BBQ-maaltijd hoeft aan tafel in het restaurant te zijn. Veel gasten zoeken juist naar BBQ afhalen in Utrecht of halal eten Overvecht voor thuis. Sultana BBQ ondersteunt die behoefte met duidelijke menu-informatie en bestelopties. Schotels, burgers, wraps en grillgerechten zijn geschikt om mee te nemen.",
+            "Voor afhalen is het handig om vooraf het menu te bekijken en eventueel te bellen bij vragen. Wil je met meerdere personen bestellen, kies dan voor mixed grill of groepsschotels. Daarmee zet je thuis snel een gevarieerde tafel neer zonder losse gerechten te hoeven combineren."
+        ]),
+        new("Bereikbaar en geschikt voor groepen",
+        [
+            "Sultana BBQ is goed bereikbaar binnen Overvecht. Open de route op je telefoon voor de actuele reistijd en controleer parkeerinformatie in de buurt wanneer je met de auto komt. Voor groepen is reserveren aan te raden, zodat het restaurant rekening kan houden met de tafelindeling.",
+            "Of je nu zoekt naar restaurant Overvecht, BBQ restaurant Utrecht of halal BBQ in de buurt: deze pagina helpt je snel naar menu, route, reserveren en bellen. Dat is precies wat lokale bezoekers nodig hebben."
+        ])
+    ];
+
+    private static readonly IReadOnlyList<BreadcrumbItem> Breadcrumbs =
+    [
+        new("Home", "/"),
+        new("BBQ restaurant Overvecht", "/bbq-restaurant-overvecht")
+    ];
+
+    private static readonly IReadOnlyList<SeoLink> PrimaryLinks =
+    [
+        new("Bekijk menu", "/menu"),
+        new("Bestel afhalen", "/afhalen-bezorgen", "outline")
+    ];
+}

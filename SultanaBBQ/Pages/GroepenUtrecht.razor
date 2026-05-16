@@ -1,0 +1,50 @@
+@page "/restaurant-groepen-utrecht"
+@using SultanaBBQ.Services
+
+<LocalSeoPage Title="Restaurant voor groepen Utrecht | Sultana BBQ Overvecht"
+              Description="Sultana BBQ in Utrecht Overvecht is geschikt voor groepen, families en vrienden. Reserveer voor halal BBQ, mixed grill en groepsschotels."
+              Path="/restaurant-groepen-utrecht"
+              H1="Restaurant voor groepen in Utrecht"
+              Eyebrow="Families en gezelschappen"
+              Intro="Sultana BBQ is geschikt voor families, vrienden en groepen die samen halal BBQ, mixed grill en grillgerechten willen eten in Utrecht Overvecht."
+              Blocks="@Blocks"
+              Breadcrumbs="@Breadcrumbs"
+              PrimaryLinks="@PrimaryLinks" />
+
+@code {
+    private static readonly IReadOnlyList<SeoContentBlock> Blocks =
+    [
+        new("Samen eten zonder ingewikkeld menu",
+        [
+            "Een restaurant voor groepen in Utrecht moet vooral duidelijk en praktisch zijn. Gasten willen weten of er voldoende keuze is, of gerechten gedeeld kunnen worden en of reserveren mogelijk is. Sultana BBQ in Overvecht is daarvoor geschikt omdat het menu bestaat uit herkenbare grillgerechten, mixed grill, schotels, kip, vlees, burgers en bijgerechten.",
+            "Voor groepen werken mixed grill en groepsschotels goed. Je zet verschillende smaken op tafel, waardoor iedereen iets kan pakken. Dat is handig bij families, verjaardagen, informele etentjes en avonden met vrienden. De sfeer blijft ontspannen, terwijl het eten royaal en passend bij halal voorkeuren is."
+        ]),
+        new("Reserveren voor groepen",
+        [
+            "Voor kleine gezelschappen kun je online reserveren. Bij grotere groepen is bellen verstandig, zodat het restaurant kan meedenken over tijdstip, tafelindeling en hoeveelheid eten. Geef door met hoeveel personen je komt, of er kinderen bij zijn en of je speciale wensen hebt. Zo kan het team beter voorbereiden en voorkom je wachttijd.",
+            "Sultana BBQ is dagelijks geopend van 11:00 tot 22:00. Rond etenstijd kan het drukker zijn. Reserveer daarom op tijd als je zeker wilt zijn van plek. De reserveringspagina maakt de eerste stap eenvoudig, maar telefonisch overleg blijft handig voor grotere groepen."
+        ]),
+        new("Menu voor families en gezelschappen",
+        [
+            "Families kiezen vaak voor een combinatie van kipgerechten, burgers, schotels en bijgerechten. Vriendengroepen bestellen sneller mixed grill of grotere schalen. Beide opties passen goed bij Sultana BBQ, omdat het menu breed genoeg is zonder onoverzichtelijk te worden. Ook vegetariers kunnen meedoen met falafel, halloumi en bijgerechten zoals hummus en tabbouleh.",
+            "Wanneer je vooraf het menu bekijkt, kun je sneller bestellen aan tafel. Dat is prettig bij groepen, omdat niet iedereen op hetzelfde tempo kiest. De menupagina staat volledig in HTML, dus je kunt die makkelijk delen via telefoon."
+        ]),
+        new("Bereikbaarheid in Overvecht",
+        [
+            "De locatie aan de Zamenhofdreef in Utrecht Overvecht is praktisch voor lokale gasten en bezoekers uit andere wijken. Open vooraf de route en controleer de actuele parkeerregels als je met meerdere auto’s komt. Voor groepen die willen afhalen, is het verstandig om vooraf te bellen en een tijd af te spreken.",
+            "Zoek je een restaurant Overvecht, halal restaurant Utrecht of BBQ restaurant Utrecht waar groepen welkom zijn? Sultana BBQ biedt duidelijke acties: menu bekijken, tafel reserveren, bellen, route openen of afhalen bestellen."
+        ])
+    ];
+
+    private static readonly IReadOnlyList<BreadcrumbItem> Breadcrumbs =
+    [
+        new("Home", "/"),
+        new("Restaurant voor groepen Utrecht", "/restaurant-groepen-utrecht")
+    ];
+
+    private static readonly IReadOnlyList<SeoLink> PrimaryLinks =
+    [
+        new("Reserveer tafel", "/reserveren"),
+        new("Bel direct", $"tel:{RestaurantInfo.PhoneHref}", "outline")
+    ];
+}

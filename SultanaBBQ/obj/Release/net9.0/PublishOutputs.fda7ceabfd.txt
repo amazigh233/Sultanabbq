@@ -1,0 +1,1 @@
+/tmp/sultana-publish-check-final/web.config

@@ -4,10 +4,22 @@
 <section class="menu-section" id="menu">
     <div class="menu-header reveal">
         <h2>Ons Menu</h2>
-        <p>Klik op een gerecht in de 3D-scene of kies een categorie</p>
+        <p class="menu-header-desktop">Klik op een gerecht in de 3D-scene of kies een categorie</p>
+        <p class="menu-header-mobile">Tik op een categorie om het menu te bekijken</p>
     </div>
 
     <div id="scene-container"></div>
+
+    <div class="menu-mobile-grid">
+        @foreach (var (name, emoji) in CategoryIcons)
+        {
+            <button class="menu-mobile-card @(selectedCategory == name ? "active" : "")"
+                    @onclick="() => SelectCategory(name)">
+                <span class="menu-mobile-icon">@emoji</span>
+                <span class="menu-mobile-name">@name</span>
+            </button>
+        }
+    </div>
 
     <div class="menu-categories">
         @foreach (var category in MenuService.GetCategories())
@@ -44,11 +56,23 @@
     private string? selectedCategory;
     private bool panelOpen = false;
 
+    private static readonly (string Name, string Emoji)[] CategoryIcons =
+    {
+        ("Grillgerechten",      "🥩"),
+        ("Mixed grill",         "🔥"),
+        ("Kipgerechten",        "🍗"),
+        ("Vleesgerechten",      "🥙"),
+        ("Burgers",             "🍔"),
+        ("Schotels",            "🍽️"),
+        ("Bijgerechten",        "🥗"),
+        ("Dranken",             "🥤"),
+    };
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            await JS.InvokeVoidAsync("SultanaScene.init", "scene-container", DotNetObjectReference.Create(this));
+            await JS.InvokeVoidAsync("SultanaInterop.initMenuScene", "scene-container", DotNetObjectReference.Create(this));
         }
     }
 

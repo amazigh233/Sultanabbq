@@ -1,0 +1,487 @@
+@page "/cocktail-builder"
+@inject IJSRuntime JS
+@using System.Text
+@using System.Linq
+
+<PageTitle>Cocktail Builder - Sultana BBQ</PageTitle>
+
+<section class="bdr-hero cocktail-hero">
+    <div class="bdr-hero-inner cocktail-hero-inner">
+        <div>
+            <div class="section-label">Mix Je Eigen Signature</div>
+            <h1>Maak Je Eigen <em class="accent">Cocktail</em></h1>
+            <p>Kies je stijl, smaak, mixer en garnish. Wij shaken hem vers aan de bar.</p>
+        </div>
+        <div class="cocktail-hero-visual" aria-hidden="true">
+            <div class="cocktail-glass">
+                <div class="cocktail-liquid" style="@LiquidStyle"></div>
+                <div class="cocktail-ice ice-one"></div>
+                <div class="cocktail-ice ice-two"></div>
+                <div class="cocktail-garnish">@GarnishSymbol</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="bdr-section cocktail-section">
+    <div class="container">
+        <div class="bdr-layout">
+            <div class="bdr-wizard">
+                <div class="bdr-progress">
+                    @for (int i = 1; i <= TotalSteps; i++)
+                    {
+                        var step = i;
+                        <div class="bdr-progress-dot @(currentStep > step ? "done" : currentStep == step ? "active" : "")">
+                            @if (currentStep > step)
+                            {
+                                <span>&#10003;</span>
+                            }
+                            else
+                            {
+                                <span>@step</span>
+                            }
+                        </div>
+                        @if (step < TotalSteps)
+                        {
+                            <div class="bdr-progress-line @(currentStep > step ? "done" : "")"></div>
+                        }
+                    }
+                </div>
+                <p class="bdr-progress-label">Stap @Math.Min(currentStep, TotalSteps) van @TotalSteps</p>
+
+                @switch (currentStep)
+                {
+                    case 1:
+                        <div class="bdr-step-content">
+                            <h2 class="bdr-step-title">Kies Je Basis</h2>
+                            <p class="bdr-step-sub">Ga voor een klassieker of maak hem alcoholvrij.</p>
+                            <div class="bdr-cards cocktail-cards">
+                                @foreach (var opt in BaseOptions)
+                                {
+                                    var option = opt;
+                                    <button type="button" class="bdr-card @(selectedBase == option ? "selected" : "")" @onclick="() => selectedBase = option">
+                                        <span class="bdr-card-emoji">@option.Symbol</span>
+                                        <span class="bdr-card-name">@option.Name</span>
+                                        <span class="bdr-card-price">&#8364;@option.Price.ToString("F2")</span>
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                        break;
+
+                    case 2:
+                        <div class="bdr-step-content">
+                            <h2 class="bdr-step-title">Kies Je Smaak</h2>
+                            <p class="bdr-step-sub">Dit bepaalt de kleur, geur en eerste indruk.</p>
+                            <div class="bdr-cards cocktail-cards">
+                                @foreach (var opt in FlavorOptions)
+                                {
+                                    var option = opt;
+                                    <button type="button" class="bdr-card @(selectedFlavor == option ? "selected" : "")" @onclick="() => selectedFlavor = option">
+                                        <span class="bdr-card-emoji">@option.Symbol</span>
+                                        <span class="bdr-card-name">@option.Name</span>
+                                        <span class="bdr-card-free">@option.Note</span>
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                        break;
+
+                    case 3:
+                        <div class="bdr-step-content">
+                            <h2 class="bdr-step-title">Kies Je Mixer</h2>
+                            <p class="bdr-step-sub">Licht bruisend, fris of juist romig.</p>
+                            <div class="bdr-cards cocktail-cards">
+                                @foreach (var opt in MixerOptions)
+                                {
+                                    var option = opt;
+                                    <button type="button" class="bdr-card @(selectedMixer == option ? "selected" : "")" @onclick="() => selectedMixer = option">
+                                        <span class="bdr-card-emoji">@option.Symbol</span>
+                                        <span class="bdr-card-name">@option.Name</span>
+                                        <span class="bdr-card-free">@option.Note</span>
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                        break;
+
+                    case 4:
+                        <div class="bdr-step-content">
+                            <h2 class="bdr-step-title">Garnish & Finish</h2>
+                            <p class="bdr-step-sub">De laatste laag smaak en presentatie.</p>
+                            <div class="bdr-cards bdr-cards-multi">
+                                @foreach (var opt in GarnishOptions)
+                                {
+                                    var option = opt;
+                                    <button type="button" class="bdr-card @(selectedGarnishes.Contains(option) ? "selected" : "")" @onclick="() => ToggleOption(selectedGarnishes, option)">
+                                        <span class="bdr-card-emoji">@option.Symbol</span>
+                                        <span class="bdr-card-name">@option.Name</span>
+                                        <span class="bdr-card-free">Inclusief</span>
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                        break;
+
+                    case 5:
+                        <div class="bdr-step-content">
+                            <h2 class="bdr-step-title">Extra Bar Touch</h2>
+                            <p class="bdr-step-sub">Optioneel, maar lekker als je cocktail wat meer karakter mag hebben.</p>
+                            <div class="bdr-cards bdr-cards-multi">
+                                @foreach (var opt in ExtraOptions)
+                                {
+                                    var option = opt;
+                                    <button type="button" class="bdr-card @(selectedExtras.Contains(option) ? "selected" : "")" @onclick="() => ToggleOption(selectedExtras, option)">
+                                        <span class="bdr-card-emoji">@option.Symbol</span>
+                                        <span class="bdr-card-name">@option.Name</span>
+                                        <span class="bdr-card-price">+&#8364;@option.Price.ToString("F2")</span>
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                        break;
+
+                    case 6:
+                        <div class="bdr-step-content bdr-summary">
+                            <h2 class="bdr-step-title">Jouw Cocktail</h2>
+                            <p class="bdr-step-sub">Controleer je mix en verstuur hem direct naar de bar.</p>
+
+                            <div class="bdr-summary-overview">
+                                <div class="bdr-summary-row">
+                                    <span class="bdr-summary-label">Basis</span>
+                                    <span>@selectedBase!.Name</span>
+                                </div>
+                                <div class="bdr-summary-row">
+                                    <span class="bdr-summary-label">Smaak</span>
+                                    <span>@selectedFlavor!.Name</span>
+                                </div>
+                                <div class="bdr-summary-row">
+                                    <span class="bdr-summary-label">Mixer</span>
+                                    <span>@selectedMixer!.Name</span>
+                                </div>
+                                @if (selectedGarnishes.Count > 0)
+                                {
+                                    <div class="bdr-summary-row">
+                                        <span class="bdr-summary-label">Garnish</span>
+                                        <span>@string.Join(", ", selectedGarnishes.Select(g => g.Name))</span>
+                                    </div>
+                                }
+                                @if (selectedExtras.Count > 0)
+                                {
+                                    <div class="bdr-summary-row">
+                                        <span class="bdr-summary-label">Extra's</span>
+                                        <span>@string.Join(", ", selectedExtras.Select(e => $"{e.Name} (+€{e.Price:F2})"))</span>
+                                    </div>
+                                }
+                                <div class="bdr-summary-total">
+                                    <span>Totaal</span>
+                                    <span class="bdr-total-amount">&#8364;@Total.ToString("F2")</span>
+                                </div>
+                            </div>
+
+                            <div class="bdr-summary-form">
+                                <div class="form-group">
+                                    <label>Naam *</label>
+                                    <input type="text" @bind="customerName" placeholder="Uw naam" class="@(showSummaryErrors && string.IsNullOrWhiteSpace(customerName) ? "error" : "")" />
+                                    @if (showSummaryErrors && string.IsNullOrWhiteSpace(customerName))
+                                    {
+                                        <span class="form-error">Naam is verplicht</span>
+                                    }
+                                </div>
+                                <div class="form-group">
+                                    <label>Telefoonnummer *</label>
+                                    <input type="tel" @bind="customerPhone" placeholder="+31 6 12345678" class="@(showSummaryErrors && string.IsNullOrWhiteSpace(customerPhone) ? "error" : "")" />
+                                    @if (showSummaryErrors && string.IsNullOrWhiteSpace(customerPhone))
+                                    {
+                                        <span class="form-error">Telefoonnummer is verplicht</span>
+                                    }
+                                </div>
+                            </div>
+
+                            <button type="button" class="bdr-wa-btn" @onclick="PlaceOrder">
+                                Aanvragen via WhatsApp
+                            </button>
+                        </div>
+                        break;
+                }
+
+                @if (currentStep <= TotalSteps)
+                {
+                    <div class="bdr-nav">
+                        @if (currentStep > 1)
+                        {
+                            <button type="button" class="bdr-btn-back" @onclick="PrevStep">&#8592; Terug</button>
+                        }
+                        else
+                        {
+                            <span></span>
+                        }
+                        <button type="button" class="bdr-btn-next @(!CanAdvance ? "disabled" : "")" @onclick="NextStep" disabled="@(!CanAdvance)">
+                            @(currentStep == TotalSteps ? "Bekijk Cocktail" : "Volgende")
+                        </button>
+                    </div>
+                }
+                @if (currentStep == SummaryStep)
+                {
+                    <div class="bdr-nav bdr-nav-summary">
+                        <button type="button" class="bdr-btn-back" @onclick="PrevStep">&#8592; Terug</button>
+                        <button type="button" class="bdr-btn-back" @onclick="StartOver">Opnieuw Beginnen</button>
+                    </div>
+                }
+            </div>
+
+            <aside class="bdr-preview cocktail-preview">
+                <div class="cocktail-preview-top">
+                    <h3 class="bdr-preview-title">Live Cocktail</h3>
+                    <div class="mini-cocktail" aria-hidden="true">
+                        <div class="mini-cocktail-liquid" style="@LiquidStyle"></div>
+                    </div>
+                </div>
+
+                @if (selectedBase == null)
+                {
+                    <p class="bdr-preview-empty">Begin met een basis voor je cocktail.</p>
+                }
+                else
+                {
+                    <div class="bdr-preview-row">
+                        <span class="bdr-preview-label">Basis</span>
+                        <span>@selectedBase.Symbol @selectedBase.Name</span>
+                    </div>
+                }
+
+                @if (selectedFlavor != null)
+                {
+                    <div class="bdr-preview-row">
+                        <span class="bdr-preview-label">Smaak</span>
+                        <span>@selectedFlavor.Symbol @selectedFlavor.Name</span>
+                    </div>
+                }
+
+                @if (selectedMixer != null)
+                {
+                    <div class="bdr-preview-row">
+                        <span class="bdr-preview-label">Mixer</span>
+                        <span>@selectedMixer.Symbol @selectedMixer.Name</span>
+                    </div>
+                }
+
+                @if (selectedGarnishes.Count > 0)
+                {
+                    <div class="bdr-preview-row">
+                        <span class="bdr-preview-label">Garnish</span>
+                        <div class="bdr-tags">
+                            @foreach (var garnish in selectedGarnishes)
+                            {
+                                <span class="bdr-tag">@garnish.Name</span>
+                            }
+                        </div>
+                    </div>
+                }
+
+                @if (selectedExtras.Count > 0)
+                {
+                    <div class="bdr-preview-row">
+                        <span class="bdr-preview-label">Extra</span>
+                        <div class="bdr-tags">
+                            @foreach (var extra in selectedExtras)
+                            {
+                                <span class="bdr-tag">@extra.Name</span>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <div class="cocktail-meter" aria-label="Smaakprofiel">
+                    <span>Fris</span>
+                    <div>
+                        <i style="width: @StrengthPercent%"></i>
+                    </div>
+                    <span>Bold</span>
+                </div>
+
+                <div class="bdr-price-bar">
+                    <span>Totaal</span>
+                    <span class="bdr-price-amount">&#8364;@Total.ToString("F2")</span>
+                </div>
+            </aside>
+        </div>
+    </div>
+</section>
+
+@code {
+    private const int TotalSteps = 5;
+    private const int SummaryStep = 6;
+    private const string WhatsAppNumber = "31685605933";
+
+    private record CocktailOption(string Name, string Symbol, decimal Price, string Note, string Color, int Strength);
+
+    private static readonly CocktailOption[] BaseOptions =
+    [
+        new("Vodka", "V", 8.50m, "Clean", "#f6d878", 45),
+        new("Gin", "G", 8.75m, "Botanical", "#9bd6b5", 55),
+        new("Rum", "R", 8.75m, "Tropical", "#f3a95b", 60),
+        new("Tequila", "T", 9.25m, "Citrus kick", "#f1d15a", 70),
+        new("Alcoholvrij", "0%", 7.25m, "Zero proof", "#cf5f56", 25),
+    ];
+
+    private static readonly CocktailOption[] FlavorOptions =
+    [
+        new("Passievrucht", "PF", 0m, "Zoetzuur", "#f3a62f", 45),
+        new("Granaatappel", "PG", 0m, "Diep rood", "#c93f5d", 50),
+        new("Munt & Limoen", "ML", 0m, "Fris", "#74bd76", 35),
+        new("Mango Chili", "MC", 0m, "Spicy", "#ee8c2f", 70),
+        new("Rozenwater", "RW", 0m, "Floraal", "#e58aa9", 40),
+    ];
+
+    private static readonly CocktailOption[] MixerOptions =
+    [
+        new("Ginger Beer", "GB", 0m, "Pittig", "#d8a653", 65),
+        new("Tonic", "TO", 0m, "Bitter fris", "#d7dfb8", 45),
+        new("Soda", "SO", 0m, "Licht", "#cfe6ee", 25),
+        new("Ananassap", "AN", 0m, "Tropisch", "#f5ca5a", 45),
+        new("Cranberry", "CR", 0m, "Fruitig", "#bd3555", 50),
+    ];
+
+    private static readonly CocktailOption[] GarnishOptions =
+    [
+        new("Limoen", "LI", 0m, "Citrus", "#b9d86a", 10),
+        new("Munt", "MU", 0m, "Aromatisch", "#67a861", 10),
+        new("Sinaasappel", "SI", 0m, "Zest", "#ed9a45", 10),
+        new("Sumac Randje", "SU", 0m, "Sultana touch", "#ca5143", 15),
+        new("Gedroogde Roos", "RO", 0m, "Floraal", "#d4839d", 10),
+    ];
+
+    private static readonly CocktailOption[] ExtraOptions =
+    [
+        new("Premium Spirit", "PS", 2.00m, "Upgrade", "#d4a853", 15),
+        new("Rook Aroma", "RA", 1.50m, "Smoky", "#867163", 20),
+        new("Extra Fruit", "EF", 1.00m, "Juicy", "#e86d5d", 5),
+    ];
+
+    private int currentStep = 1;
+    private CocktailOption? selectedBase;
+    private CocktailOption? selectedFlavor;
+    private CocktailOption? selectedMixer;
+    private readonly List<CocktailOption> selectedGarnishes = new();
+    private readonly List<CocktailOption> selectedExtras = new();
+    private string customerName = string.Empty;
+    private string customerPhone = string.Empty;
+    private bool showSummaryErrors;
+
+    private decimal Total => (selectedBase?.Price ?? 0m) + selectedExtras.Sum(extra => extra.Price);
+
+    private bool CanAdvance => currentStep switch
+    {
+        1 => selectedBase != null,
+        2 => selectedFlavor != null,
+        3 => selectedMixer != null,
+        _ => true
+    };
+
+    private string LiquidStyle => $"--cocktail-color: {CocktailColor};";
+
+    private string CocktailColor => selectedFlavor?.Color
+        ?? selectedBase?.Color
+        ?? "#d4a853";
+
+    private string GarnishSymbol => selectedGarnishes.FirstOrDefault()?.Symbol
+        ?? selectedFlavor?.Symbol
+        ?? "+";
+
+    private int StrengthPercent
+    {
+        get
+        {
+            var values = new List<int>();
+            if (selectedBase != null) values.Add(selectedBase.Strength);
+            if (selectedFlavor != null) values.Add(selectedFlavor.Strength);
+            if (selectedMixer != null) values.Add(selectedMixer.Strength);
+            values.AddRange(selectedExtras.Select(extra => extra.Strength));
+
+            return values.Count == 0 ? 35 : Math.Clamp((int)values.Average(), 20, 90);
+        }
+    }
+
+    private async Task NextStep()
+    {
+        if (!CanAdvance)
+        {
+            return;
+        }
+
+        currentStep++;
+        StateHasChanged();
+        await JS.InvokeVoidAsync("SultanaInterop.animateBuilderStep", ".bdr-step-content");
+    }
+
+    private void PrevStep()
+    {
+        if (currentStep > 1)
+        {
+            currentStep--;
+        }
+    }
+
+    private void StartOver()
+    {
+        currentStep = 1;
+        selectedBase = null;
+        selectedFlavor = null;
+        selectedMixer = null;
+        selectedGarnishes.Clear();
+        selectedExtras.Clear();
+        customerName = string.Empty;
+        customerPhone = string.Empty;
+        showSummaryErrors = false;
+    }
+
+    private static void ToggleOption(List<CocktailOption> list, CocktailOption option)
+    {
+        if (list.Contains(option))
+        {
+            list.Remove(option);
+            return;
+        }
+
+        list.Add(option);
+    }
+
+    private async Task PlaceOrder()
+    {
+        showSummaryErrors = true;
+        if (string.IsNullOrWhiteSpace(customerName) || string.IsNullOrWhiteSpace(customerPhone))
+        {
+            return;
+        }
+
+        await JS.InvokeVoidAsync("SultanaInterop.openUrl", BuildWhatsAppUrl());
+    }
+
+    private string BuildWhatsAppUrl()
+    {
+        var message = new StringBuilder();
+        message.AppendLine("Hallo Sultana BBQ! Ik wil graag een cocktail samenstellen via de Cocktail Builder:");
+        message.AppendLine();
+        message.AppendLine($"Basis: {selectedBase!.Name}");
+        message.AppendLine($"Smaak: {selectedFlavor!.Name}");
+        message.AppendLine($"Mixer: {selectedMixer!.Name}");
+
+        if (selectedGarnishes.Count > 0)
+        {
+            message.AppendLine($"Garnish: {string.Join(", ", selectedGarnishes.Select(garnish => garnish.Name))}");
+        }
+
+        if (selectedExtras.Count > 0)
+        {
+            message.AppendLine($"Extra's: {string.Join(", ", selectedExtras.Select(extra => $"{extra.Name} (+€{extra.Price:F2})"))}");
+        }
+
+        message.AppendLine();
+        message.AppendLine($"Totaal: €{Total:F2}");
+        message.AppendLine($"Naam: {customerName.Trim()}");
+        message.AppendLine($"Telefoon: {customerPhone.Trim()}");
+
+        return $"https://wa.me/{WhatsAppNumber}?text={Uri.EscapeDataString(message.ToString())}";
+    }
+}

@@ -1,25 +1,40 @@
 <section class="hero" id="home">
-    <div class="hero-bg"></div>
+    <div class="hero-bg" aria-hidden="true">
+        <video class="hero-video"
+               autoplay
+               muted
+               loop
+               playsinline
+               preload="metadata"
+               poster="images/order/grill-platter.webp">
+            <source src="videos/sultana-bbq-hero.mp4" type="video/mp4" />
+        </video>
+    </div>
     <div class="hero-particles" id="hero-particles"></div>
 
     <div class="hero-content">
-        <p class="hero-subtitle">Midden-Oosterse BBQ • Utrecht</p>
+        <p class="hero-subtitle">Halal BBQ &amp; Grill in Utrecht</p>
         <h1 class="hero-title">
-            Sultana <span class="accent">BBQ</span>
+            Sultana BBQ
         </h1>
+        <p class="hero-tagline">Fire, Smoke &amp; Family Dining</p>
         <p class="hero-description">
-            Waar vuur en smaak samenkomen. Authentieke gerechten uit het Midden-Oosten,
-            met liefde bereid op het vuur.
+            Ervaar authentieke grillgerechten, warme gastvrijheid en een gezellige sfeer
+            voor familie en vrienden.
         </p>
         <div class="hero-cta">
-            <a class="btn-primary" href="#menu">
-                <span>Ontdek Het Menu</span>
+            <a class="btn-primary" href="/reserveren">
+                <span>Reserveer tafel</span>
+            </a>
+            <a class="btn-outline" href="#menu">
+                <span>Bekijk menu</span>
             </a>
         </div>
     </div>
 
-    <div class="hero-scroll-indicator">
-        <span>Scroll</span>
-        <div class="scroll-line"></div>
+    <div class="hero-highlights" aria-label="Sultana BBQ highlights">
+        <span>100% halal</span>
+        <span>Verse grillgerechten</span>
+        <span>Familie &amp; groepen welkom</span>
     </div>
 </section>

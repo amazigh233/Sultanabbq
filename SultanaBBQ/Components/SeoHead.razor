@@ -1,0 +1,27 @@
+@using SultanaBBQ.Services
+
+<PageTitle>@Title</PageTitle>
+
+<HeadContent>
+    <meta name="description" content="@Description" />
+    <link rel="canonical" href="@CanonicalUrl" />
+    <meta property="og:title" content="@Title" />
+    <meta property="og:description" content="@Description" />
+    <meta property="og:type" content="restaurant" />
+    <meta property="og:locale" content="nl_NL" />
+    <meta property="og:url" content="@CanonicalUrl" />
+    <meta name="twitter:card" content="summary_large_image" />
+    @if (!string.IsNullOrWhiteSpace(JsonLd))
+    {
+        <script type="application/ld+json">@((MarkupString)JsonLd)</script>
+    }
+</HeadContent>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string Description { get; set; } = string.Empty;
+    [Parameter] public string Path { get; set; } = "/";
+    [Parameter] public string? JsonLd { get; set; }
+
+    private string CanonicalUrl => RestaurantInfo.BuildUrl(Path);
+}

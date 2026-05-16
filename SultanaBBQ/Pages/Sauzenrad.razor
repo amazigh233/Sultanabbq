@@ -1,0 +1,163 @@
+@page "/sauzenrad"
+
+<SeoHead Title="Sauzenrad Sultana BBQ Utrecht | Welke saus past bij jou?"
+         Description="Draai het Sauzenrad van Sultana BBQ en ontdek jouw sausmatch: knoflooksaus, harissa, tahini, hummus, yoghurtsaus of sumac-ui touch."
+         Path="/sauzenrad" />
+
+<section class="sauce-page">
+    <div class="sauce-hero">
+        <p class="section-label">Sultana Sauzenrad</p>
+        <h1>Draai voor jouw sausmatch</h1>
+        <p>
+            Laat het rad kiezen welke saus vandaag bij jouw BBQ-mood past. Puur voor de fun,
+            met een smaakprofiel en een gerecht dat er goed bij past.
+        </p>
+    </div>
+
+    <div class="sauce-layout">
+        <section class="sauce-wheel-panel" aria-labelledby="sauce-wheel-title">
+            <div>
+                <h2 id="sauce-wheel-title">Welke saus wordt het?</h2>
+                <p>Draai het rad en ontdek of je meer romig, fris, pittig of kruidig zit.</p>
+            </div>
+
+            <div class="sauce-wheel-wrap" aria-live="polite">
+                <div class="sauce-pointer" aria-hidden="true"></div>
+                <div class="sauce-wheel @(isSpinning ? "spinning" : "")" style="@WheelStyle">
+                    @foreach (var entry in SauceProfiles.Select((Profile, Index) => new { Profile, Index }))
+                    {
+                        <span style="@GetLabelStyle(entry.Index)">@entry.Profile.ShortName</span>
+                    }
+                </div>
+                <div class="sauce-wheel-center" aria-hidden="true">Sultana</div>
+            </div>
+
+            <button type="button" class="sauce-spin-btn" @onclick="SpinWheel" disabled="@isSpinning">
+                @(hasSpun ? "Draai opnieuw" : "Draai het rad")
+            </button>
+        </section>
+
+        <aside class="sauce-result-panel" aria-label="Jouw sausmatch">
+            @if (isSpinning)
+            {
+                <p class="section-label">Het rad draait</p>
+                <h2>Even kijken...</h2>
+                <p>De sausmatch wordt gekozen zodra het rad stopt.</p>
+                <div class="sauce-placeholder-bars spinning" aria-hidden="true">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            }
+            else if (selectedProfile is null)
+            {
+                <p class="section-label">Nog geen match</p>
+                <h2>Het rad wacht op jou</h2>
+                <p>Klik op de knop en laat Sultana BBQ jouw sausprofiel kiezen.</p>
+                <div class="sauce-placeholder-bars" aria-hidden="true">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            }
+            else
+            {
+                <p class="section-label">Jouw match</p>
+                <h2>@selectedProfile.Name</h2>
+                <p>@selectedProfile.Description</p>
+
+                <dl class="sauce-result-list">
+                    <div>
+                        <dt>Smaak</dt>
+                        <dd>@selectedProfile.Taste</dd>
+                    </div>
+                    <div>
+                        <dt>Pittigheid</dt>
+                        <dd>
+                            <span class="sauce-heat" aria-label="@selectedProfile.HeatLabel">
+                                @for (var i = 1; i <= 5; i++)
+                                {
+                                    <span class="@(i <= selectedProfile.Heat ? "active" : "")"></span>
+                                }
+                            </span>
+                            @selectedProfile.HeatLabel
+                        </dd>
+                    </div>
+                    <div>
+                        <dt>Past bij</dt>
+                        <dd>@selectedProfile.Pairing</dd>
+                    </div>
+                </dl>
+            }
+        </aside>
+    </div>
+</section>
+
+@code {
+    private const int SpinDelayMs = 900;
+    private const double SegmentDegrees = 60d;
+    private const double FullTurnsPerSpin = 3d;
+
+    private SauceProfile? selectedProfile;
+    private SauceProfile? pendingProfile;
+    private bool hasSpun;
+    private bool isSpinning;
+    private int spinCount;
+    private double rotationDegrees;
+
+    private string WheelStyle => $"--sauce-rotation: {rotationDegrees:F0}deg;";
+
+    private static readonly SauceProfile[] SauceProfiles =
+    [
+        new("Knoflooksaus", "Knoflook", "Romig/fris", 1, "Zacht", "Romig, fris en vertrouwd. Dit is de saus voor wie elk grillgerecht net wat zachter en voller wil maken.", "Kip shish of een wrap"),
+        new("Harissa", "Harissa", "Pittig/rokerig", 5, "Vurig", "Warm, kruidig en met pit. Harissa geeft je bord meteen een stevige BBQ-kick.", "Adana kebab of BBQ burger"),
+        new("Tahini", "Tahini", "Nootachtig/zacht", 2, "Mild", "Nootachtig, rond en zacht. Tahini brengt balans bij kruidige gerechten en vegetarische keuzes.", "Falafel of halloumi"),
+        new("Hummus", "Hummus", "Vol/romig", 1, "Zacht", "Vol, romig en royaal. Hummus past bij langzaam tafelen en samen delen.", "Schotels en mixed grill"),
+        new("Yoghurtsaus", "Yoghurt", "Fris/zacht", 1, "Zacht", "Fris, licht en verkoelend. Ideaal als je grill en kruiden graag in balans houdt.", "Lamskoteletten of kip"),
+        new("Sumac-ui touch", "Sumac", "Zuur/kruidig", 3, "Medium", "Zuur, kruidig en net even anders. De sumac-ui touch maakt mixed grill extra levendig.", "Mixed grill")
+    ];
+
+    private async Task SpinWheel()
+    {
+        if (isSpinning)
+        {
+            return;
+        }
+
+        isSpinning = true;
+        hasSpun = true;
+
+        var index = Random.Shared.Next(SauceProfiles.Length);
+        pendingProfile = SauceProfiles[index];
+        spinCount++;
+        rotationDegrees = spinCount * FullTurnsPerSpin * 360d + GetRotationForIndex(index);
+
+        StateHasChanged();
+        await Task.Delay(SpinDelayMs);
+
+        selectedProfile = pendingProfile;
+        pendingProfile = null;
+        isSpinning = false;
+    }
+
+    private static double GetRotationForIndex(int index)
+    {
+        var segmentCenter = index * SegmentDegrees + SegmentDegrees / 2d;
+        return 360d - segmentCenter;
+    }
+
+    private static string GetLabelStyle(int index)
+    {
+        var angle = index * SegmentDegrees + SegmentDegrees / 2d;
+        return $"--label-angle: {angle:F0}deg; --label-counter: {-angle:F0}deg;";
+    }
+
+    private sealed record SauceProfile(
+        string Name,
+        string ShortName,
+        string Taste,
+        int Heat,
+        string HeatLabel,
+        string Description,
+        string Pairing);
+}

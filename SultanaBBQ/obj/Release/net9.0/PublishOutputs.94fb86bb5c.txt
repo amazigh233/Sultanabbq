@@ -1,0 +1,2 @@
+/Users/bilalzambib/Sultanabbq/SultanaBBQ/bin/Release/net9.0/publish/segmentation-rules.json
+/Users/bilalzambib/Sultanabbq/SultanaBBQ/bin/Release/net9.0/publish/web.config

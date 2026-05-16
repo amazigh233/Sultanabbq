@@ -6,14 +6,13 @@ public static class MenuService
     {
         return new List<string>
         {
-            "Koude Voorgerechten",
-            "Warme Voorgerechten",
             "Grillgerechten",
-            "Hamburgers",
-            "Wraps",
-            "Kebab",
-            "Falafel",
-            "Snacks",
+            "Mixed grill",
+            "Kipgerechten",
+            "Vleesgerechten",
+            "Burgers",
+            "Schotels",
+            "Bijgerechten",
             "Dranken"
         };
     }
@@ -22,69 +21,62 @@ public static class MenuService
     {
         return category switch
         {
-            "Koude Voorgerechten" => new List<MenuItem>
-            {
-                new("Hummus", "Romige kikkererwten dip met tahini en olijfolie", 5.50m),
-                new("Baba Ganoush", "Gegrilde aubergine dip met tahini en knoflook", 6.00m),
-                new("Tabbouleh", "Frisse salade met bulgur, peterselie, tomaat en munt", 6.50m),
-                new("Fattoush", "Libanese salade met knapperig brood en sumak", 6.50m),
-                new("Muhammara", "Pittige walnoot-paprika dip", 6.00m),
-            },
-            "Warme Voorgerechten" => new List<MenuItem>
-            {
-                new("Kibbeh", "Gefrituurde bulgur-gehaktballetjes met pijnboompitten", 7.50m),
-                new("Sambousek Kaas", "Knapperige deegdriehoeken gevuld met kaas", 6.50m),
-                new("Sambousek Vlees", "Knapperige deegdriehoeken gevuld met gekruid gehakt", 7.00m),
-                new("Soep van de Dag", "Dagverse soep met brood", 5.50m),
-                new("Halloumi Grill", "Gegrilde halloumi kaas met munt", 7.00m),
-            },
             "Grillgerechten" => new List<MenuItem>
             {
-                new("Mixed Grill", "Combinatie van kip, lam en kofte van de grill", 16.50m),
-                new("Lamskoteletten", "Gemarineerde lamskoteletten van de houtskool", 18.00m),
-                new("Kip Shish Taouk", "Gemarineerde kipspiesjes met knoflooksaus", 14.50m),
-                new("Adana Kebab", "Pittig gekruid lamsgehakt van de grill", 15.00m),
-                new("Kofta Grill", "Huisgemaakte gehaktspiesjes met kruiden", 14.00m),
-                new("Whole Chicken", "Hele kip gemarineerd en gegrild op houtskool", 22.00m),
+                new("Adana Kebab", "Pittig gekruid halal grillgerecht van lamsgehakt met salade, rijst of friet", 15.00m),
+                new("Kofta Grill", "Huisgemaakte gehaktspies met kruiden, gegrild op hoge temperatuur", 14.00m),
+                new("Lamskoteletten", "Gemarineerde lamskoteletten van de grill met knoflooksaus en garnituur", 18.00m),
+                new("Shish Kebab", "Malse vleesspies met gegrilde groenten, ideaal voor liefhebbers van grillrestaurant Utrecht", 14.50m),
+                new("Whole Chicken", "Hele kip, langzaam gemarineerd en vers gegrild voor twee personen", 22.00m),
             },
-            "Hamburgers" => new List<MenuItem>
+            "Mixed grill" => new List<MenuItem>
             {
-                new("Classic Burger", "Rundvlees burger met sla, tomaat en saus", 9.50m),
-                new("Cheese Burger", "Met cheddar kaas en karamelliseerde ui", 10.50m),
-                new("BBQ Burger", "Met BBQ saus, jalapeño en crispy ui", 11.50m),
-                new("Chicken Burger", "Krokante kip filet met mayo en sla", 10.00m),
-                new("Falafel Burger", "Vegetarische burger met falafel en tahini", 9.50m),
+                new("Mixed Grill Sultana", "Combinatie van kip, lam en kofta: mixed grill in Utrecht Overvecht", 16.50m),
+                new("Mixed Grill Royal", "Royale schaal met meerdere spiesen, lamskoteletten en bijgerechten", 24.50m),
+                new("Family Mixed Grill", "Grote halal BBQ-schotel om te delen met familie of vrienden", 42.00m),
+                new("Mixed Grill Kip & Vlees", "Gevarieerde grillmix met kip shish, kofta en Adana kebab", 19.50m),
+                new("Sultana Groepsschotel", "Royale mixed grill voor groepen, met rijst, salade, brood en sauzen", 58.00m),
             },
-            "Wraps" => new List<MenuItem>
+            "Kipgerechten" => new List<MenuItem>
             {
-                new("Shawarma Wrap", "Dun gesneden gekruid vlees met groenten en saus", 10.00m),
-                new("Falafel Wrap", "Knapperige falafel met hummus en groenten", 9.00m),
-                new("Kip Wrap", "Gegrilde kip met knoflooksaus en salade", 10.00m),
-                new("Mixed Wrap", "Combinatie van vlees met alle toppings", 11.50m),
-                new("Halloumi Wrap", "Gegrilde halloumi met groenten en munt", 9.50m),
+                new("Kip Shish Taouk", "Gemarineerde kipspiesjes met knoflooksaus, salade en rijst", 14.50m),
+                new("Halve Kip Grill", "Halve kip van de grill met kruidige marinade en friet", 13.50m),
+                new("Kip Kebab Schotel", "Halal kip kebab met rijst, salade, brood en huisgemaakte saus", 12.50m),
+                new("Chicken Burger", "Krokante kipfilet met sla, saus en brioche bun", 10.00m),
+                new("Kip Wrap", "Gegrilde kip in wrap met knoflooksaus en verse groenten", 10.00m),
             },
-            "Kebab" => new List<MenuItem>
+            "Vleesgerechten" => new List<MenuItem>
             {
                 new("Döner Kebab", "Klassieke döner met verse groenten en saus", 9.50m),
                 new("Iskender Kebab", "Döner op brood met tomatensaus en yoghurt", 13.50m),
-                new("Shish Kebab", "Lam spiesjes met gegrilde groenten", 14.50m),
-                new("Kip Kebab", "Gemarineerde kip kebab met rijst", 12.50m),
-                new("Dürüm", "Dunne wrap met döner vlees en groenten", 10.00m),
+                new("Shawarma Wrap", "Dun gesneden gekruid vlees met groenten en saus", 10.00m),
+                new("Lamsvlees Schotel", "Mals lamsvlees met rijst, salade en warme saus", 16.50m),
+                new("Kapsalon Vlees", "Friet met vlees, kaas, salade en saus", 11.00m),
             },
-            "Falafel" => new List<MenuItem>
+            "Burgers" => new List<MenuItem>
             {
-                new("Falafel Bord", "6 stuks falafel met hummus, salade en brood", 11.00m),
-                new("Falafel Wrap", "Knapperige falafel in wrap met tahini", 9.00m),
-                new("Falafel Pita", "Falafel in warm pitabrood met groenten", 8.50m),
-                new("Falafel Salade", "Falafel op bed van frisse salade", 10.50m),
+                new("Classic Burger", "Rundvleesburger met sla, tomaat en huisgemaakte saus", 9.50m),
+                new("Cheese Burger", "Burger met cheddar, gekaramelliseerde ui en frisse salade", 10.50m),
+                new("BBQ Burger", "Burger met BBQ-saus, jalapeño en crispy ui", 11.50m),
+                new("Chicken Burger", "Krokante kipburger met mayo en sla", 10.00m),
+                new("Falafel Burger", "Vegetarische burger met falafel en tahinisaus", 9.50m),
             },
-            "Snacks" => new List<MenuItem>
+            "Schotels" => new List<MenuItem>
             {
+                new("Falafel Schotel", "Knapperige falafel met hummus, salade en brood", 11.00m),
+                new("Kip Schotel", "Gegrilde kip met rijst, salade, brood en saus", 13.50m),
+                new("Kebab Schotel", "Kebabvlees met rijst of friet, salade en knoflooksaus", 13.50m),
+                new("Mixed Schotel", "Combinatie van vlees en kip met royale bijgerechten", 15.50m),
+                new("Halloumi Schotel", "Gegrilde halloumi met salade, brood en frisse dips", 12.50m),
+            },
+            "Bijgerechten" => new List<MenuItem>
+            {
+                new("Hummus", "Romige kikkererwtendip met tahini en olijfolie", 5.50m),
+                new("Baba Ganoush", "Gegrilde auberginedip met tahini en knoflook", 6.00m),
+                new("Tabbouleh", "Frisse salade met bulgur, peterselie, tomaat en munt", 6.50m),
+                new("Kibbeh", "Gefrituurde bulgur-gehaktballetjes met pijnboompitten", 7.50m),
                 new("Friet", "Knapperige frites met saus naar keuze", 4.00m),
-                new("Kapsalon", "Friet met döner, kaas, salade en saus", 11.00m),
                 new("Loaded Fries", "Friet met kebabvlees, kaas en jalapeño", 10.50m),
-                new("Kipnuggets", "6 stuks krokante kipnuggets", 6.50m),
-                new("Cheese Sticks", "Krokante kaas sticks met dipsaus", 5.50m),
             },
             "Dranken" => new List<MenuItem>
             {
