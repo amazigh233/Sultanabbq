@@ -1,6 +1,7 @@
 using Npgsql;
 using NpgsqlTypes;
 using SultanaBBQ.Shared;
+using System.Data;
 
 namespace SultanaBBQ.Api.Services;
 
@@ -42,9 +43,11 @@ public sealed class ReservationRepository(IConfiguration configuration) : IAsync
         await EnsureSchemaAsync(cancellationToken);
 
         await using var command = DataSource.CreateCommand("""
-            select id, name, email, phone, guests, reservation_date, reservation_time, notes, status, created_at
-            from reservations
-            order by created_at desc
+            select r.id, r.name, r.email, r.phone, r.guests, r.reservation_date, r.reservation_time,
+                   r.notes, r.status, r.created_at, r.table_id, t.name as table_name
+            from reservations r
+            left join dining_tables t on t.id = r.table_id
+            order by r.created_at desc
             limit 200;
             """);
 
@@ -59,27 +62,107 @@ public sealed class ReservationRepository(IConfiguration configuration) : IAsync
         return reservations;
     }
 
-    public async Task<(OwnerReservation? Reservation, bool ConfirmedNow)> ConfirmAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<(OwnerReservation? Reservation, bool ConfirmedNow, string? Error)> ConfirmAsync(Guid id, CancellationToken cancellationToken)
     {
         await EnsureSchemaAsync(cancellationToken);
 
-        await using var command = DataSource.CreateCommand("""
-            update reservations
-            set status = 'confirmed'
-            where id = @id and status <> 'confirmed'
-            returning id, name, email, phone, guests, reservation_date, reservation_time, notes, status, created_at;
-            """);
+        await using var connection = await DataSource.OpenConnectionAsync(cancellationToken);
+        await using var transaction = await connection.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
 
-        command.Parameters.AddWithValue("id", NpgsqlDbType.Uuid, id);
+        await using var reservationCommand = connection.CreateCommand();
+        reservationCommand.Transaction = transaction;
+        reservationCommand.CommandText = """
+            select r.id, r.name, r.email, r.phone, r.guests, r.reservation_date, r.reservation_time,
+                   r.notes, r.status, r.created_at, r.table_id, t.name as table_name
+            from reservations r
+            left join dining_tables t on t.id = r.table_id
+            where r.id = @id
+            for update of r;
+            """;
+        reservationCommand.Parameters.AddWithValue("id", NpgsqlDbType.Uuid, id);
 
-        await using var reader = await command.ExecuteReaderAsync(cancellationToken);
+        await using var reader = await reservationCommand.ExecuteReaderAsync(cancellationToken);
+        OwnerReservation? reservation = null;
         if (await reader.ReadAsync(cancellationToken))
         {
-            return (ReadReservation(reader), true);
+            reservation = ReadReservation(reader);
         }
 
         await reader.DisposeAsync();
-        return (await GetByIdAsync(id, cancellationToken), false);
+
+        if (reservation is null)
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            return (null, false, null);
+        }
+
+        if (reservation.Status == "confirmed")
+        {
+            await transaction.CommitAsync(cancellationToken);
+            return (reservation, false, null);
+        }
+
+        await using var tableCommand = connection.CreateCommand();
+        tableCommand.Transaction = transaction;
+        tableCommand.CommandText = """
+            select t.id
+            from dining_tables t
+            where t.is_active = true
+              and t.capacity >= @guests
+              and not exists (
+                  select 1
+                  from reservations other
+                  where other.table_id = t.id
+                    and other.id <> @reservation_id
+                    and other.status = 'confirmed'
+                    and other.reservation_date = @reservation_date
+                    and tsrange(
+                        other.reservation_date::timestamp + other.reservation_time,
+                        other.reservation_date::timestamp + other.reservation_time + interval '2 hours',
+                        '[)'
+                    ) && tsrange(
+                        @reservation_date + @reservation_time,
+                        @reservation_date + @reservation_time + interval '2 hours',
+                        '[)'
+                    )
+              )
+            order by t.capacity asc, t.name asc
+            limit 1;
+            """;
+        tableCommand.Parameters.AddWithValue("guests", NpgsqlDbType.Integer, reservation.Guests);
+        tableCommand.Parameters.AddWithValue("reservation_id", NpgsqlDbType.Uuid, reservation.Id);
+        tableCommand.Parameters.AddWithValue("reservation_date", NpgsqlDbType.Date, reservation.Date);
+        tableCommand.Parameters.AddWithValue("reservation_time", NpgsqlDbType.Time, TimeOnly.Parse(reservation.Time));
+
+        var tableResult = await tableCommand.ExecuteScalarAsync(cancellationToken);
+        if (tableResult is not Guid tableId)
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            return (reservation, false, "Geen passende vrije tafel beschikbaar voor dit tijdstip.");
+        }
+
+        await using var updateCommand = connection.CreateCommand();
+        updateCommand.Transaction = transaction;
+        updateCommand.CommandText = """
+            update reservations
+            set status = 'confirmed',
+                table_id = @table_id
+            where id = @id
+            returning id, name, email, phone, guests, reservation_date, reservation_time, notes, status, created_at,
+                      table_id, (select name from dining_tables where id = @table_id) as table_name;
+            """;
+        updateCommand.Parameters.AddWithValue("id", NpgsqlDbType.Uuid, id);
+        updateCommand.Parameters.AddWithValue("table_id", NpgsqlDbType.Uuid, tableId);
+
+        await using var updatedReader = await updateCommand.ExecuteReaderAsync(cancellationToken);
+        OwnerReservation? updatedReservation = null;
+        if (await updatedReader.ReadAsync(cancellationToken))
+        {
+            updatedReservation = ReadReservation(updatedReader);
+        }
+
+        await transaction.CommitAsync(cancellationToken);
+        return (updatedReservation, true, null);
     }
 
     public async ValueTask DisposeAsync()
@@ -107,6 +190,22 @@ public sealed class ReservationRepository(IConfiguration configuration) : IAsync
             }
 
             await using var command = DataSource.CreateCommand("""
+                create table if not exists dining_tables (
+                    id uuid primary key,
+                    name varchar(80) not null,
+                    capacity integer not null check (capacity between 1 and 40),
+                    is_active boolean not null default true,
+                    created_at timestamptz not null default now()
+                );
+
+                create unique index if not exists ux_dining_tables_name
+                    on dining_tables (lower(name));
+
+                insert into dining_tables (id, name, capacity, is_active, created_at)
+                select gen_random_uuid(), 'Tafel ' || n, 4, true, now()
+                from generate_series(1, 12) n
+                where not exists (select 1 from dining_tables);
+
                 create table if not exists reservations (
                     id uuid primary key,
                     name varchar(120) not null,
@@ -120,8 +219,14 @@ public sealed class ReservationRepository(IConfiguration configuration) : IAsync
                     created_at timestamptz not null default now()
                 );
 
+                alter table reservations
+                    add column if not exists table_id uuid null references dining_tables(id);
+
                 create index if not exists ix_reservations_date_time
                     on reservations (reservation_date, reservation_time);
+
+                create index if not exists ix_reservations_table_date_time
+                    on reservations (table_id, reservation_date, reservation_time);
                 """);
 
             await command.ExecuteNonQueryAsync(cancellationToken);
@@ -139,9 +244,11 @@ public sealed class ReservationRepository(IConfiguration configuration) : IAsync
     private async Task<OwnerReservation?> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         await using var command = DataSource.CreateCommand("""
-            select id, name, email, phone, guests, reservation_date, reservation_time, notes, status, created_at
-            from reservations
-            where id = @id;
+            select r.id, r.name, r.email, r.phone, r.guests, r.reservation_date, r.reservation_time,
+                   r.notes, r.status, r.created_at, r.table_id, t.name as table_name
+            from reservations r
+            left join dining_tables t on t.id = r.table_id
+            where r.id = @id;
             """);
 
         command.Parameters.AddWithValue("id", NpgsqlDbType.Uuid, id);
@@ -164,7 +271,9 @@ public sealed class ReservationRepository(IConfiguration configuration) : IAsync
             time,
             reader.IsDBNull(7) ? null : reader.GetString(7),
             reader.GetString(8),
-            reader.GetFieldValue<DateTimeOffset>(9));
+            reader.GetFieldValue<DateTimeOffset>(9),
+            reader.IsDBNull(10) ? null : reader.GetGuid(10),
+            reader.IsDBNull(11) ? null : reader.GetString(11));
     }
 
     private static string GetConnectionString(IConfiguration configuration)

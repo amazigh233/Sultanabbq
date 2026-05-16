@@ -1,0 +1,309 @@
+@page "/personeel/tafels/{TableId:guid}/bestellen"
+@using SultanaBBQ.Shared
+@inject HttpClient Http
+@inject NavigationManager Nav
+@inject StaffSessionService StaffSession
+
+<SeoHead Title="Tafel bestellen | Sultana BBQ"
+         Description="Interne bestelpagina per tafel voor Sultana BBQ."
+         Path="/personeel/tafels/bestellen" />
+
+<section class="staff-page">
+    <div class="staff-shell">
+        <div class="staff-header">
+            <div>
+                <p class="section-label">Personeel</p>
+                <h1>@(tableName ?? "Tafel")</h1>
+            </div>
+            <div class="staff-actions">
+                <a class="btn-outline" href="/personeel/tafels">Tafels</a>
+                <a class="btn-outline" href="/personeel/orders">Open rekeningen</a>
+            </div>
+        </div>
+
+        @if (!StaffSession.HasAccessCode)
+        {
+            <div class="owner-login">
+                <h2>Personeelscode</h2>
+                <div class="form-group">
+                    <label>Code</label>
+                    <input type="password" @bind="codeInput" @bind:event="oninput" placeholder="Vul de code in" />
+                </div>
+                @if (!string.IsNullOrWhiteSpace(error))
+                {
+                    <div class="form-submit-error" role="alert">@error</div>
+                }
+                <button class="btn-gold btn-large" type="button" @onclick="Authorize" disabled="@(loading || string.IsNullOrWhiteSpace(codeInput))">
+                    @(loading ? "Controleren..." : "Bestellen openen")
+                </button>
+            </div>
+        }
+        else
+        {
+            @if (!string.IsNullOrWhiteSpace(error))
+            {
+                <div class="form-submit-error" role="alert">@error</div>
+            }
+
+            <div class="order-layout staff-order-layout">
+                <div class="order-menu">
+                    <div class="order-categories" aria-label="Menu categorieen">
+                        @foreach (var category in categories)
+                        {
+                            <button class="order-category @(selectedCategory == category ? "active" : "")"
+                                    type="button"
+                                    @onclick="() => selectedCategory = category">
+                                @category
+                            </button>
+                        }
+                    </div>
+
+                    <div class="order-items">
+                        @foreach (var item in CurrentItems)
+                        {
+                            <article class="order-card staff-menu-card">
+                                <div>
+                                    <h2>@item.Name</h2>
+                                    <p>@item.Description</p>
+                                </div>
+                                <div class="order-card-actions">
+                                    <span>€@item.Price.ToString("F2")</span>
+                                    <button type="button" class="order-add" @onclick="() => AddItem(item)">
+                                        Toevoegen
+                                    </button>
+                                </div>
+                            </article>
+                        }
+                    </div>
+                </div>
+
+                <aside class="order-summary" aria-label="Tafelrekening">
+                    <h2>Rekening</h2>
+
+                    @if (loading)
+                    {
+                        <p class="order-empty">Rekening laden...</p>
+                    }
+                    else if (order is null || order.Items.Count == 0)
+                    {
+                        <p class="order-empty">Nog geen gerechten gekozen.</p>
+                    }
+                    else
+                    {
+                        @if (!string.IsNullOrWhiteSpace(order.CustomerName) || !string.IsNullOrWhiteSpace(order.CustomerPhone) || !string.IsNullOrWhiteSpace(order.OrderNote))
+                        {
+                            <div class="staff-customer-note">
+                                @if (!string.IsNullOrWhiteSpace(order.CustomerName) || !string.IsNullOrWhiteSpace(order.CustomerPhone))
+                                {
+                                    <strong>@DisplayCustomer(order)</strong>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(order.OrderNote))
+                                {
+                                    <span>@order.OrderNote</span>
+                                }
+                            </div>
+                        }
+
+                        <div class="order-lines">
+                            @foreach (var line in order.Items)
+                            {
+                                <div class="order-line">
+                                    <div>
+                                        <strong>@line.Name</strong>
+                                        <span>@line.Quantity x €@line.UnitPrice.ToString("F2") · €@line.LineTotal.ToString("F2")</span>
+                                        @if (!string.IsNullOrWhiteSpace(line.Note))
+                                        {
+                                            <small>@line.Note</small>
+                                        }
+                                    </div>
+                                    <div class="order-quantity">
+                                        <button type="button" @onclick="() => UpdateQuantity(line, line.Quantity - 1)" aria-label="@($"{line.Name} minder")">-</button>
+                                        <span>@line.Quantity</span>
+                                        <button type="button" @onclick="() => UpdateQuantity(line, line.Quantity + 1)" aria-label="@($"{line.Name} meer")">+</button>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+
+                    <div class="order-total">
+                        <span>Totaal</span>
+                        <strong>€@(order?.Total.ToString("F2") ?? "0.00")</strong>
+                    </div>
+
+                    <button type="button" class="btn-primary order-submit" @onclick="CompleteOrder" disabled="@(order is null || order.Items.Count == 0 || completing)">
+                        <span>@(completing ? "Afronden..." : "Afronden en bon")</span>
+                    </button>
+                </aside>
+            </div>
+        }
+    </div>
+</section>
+
+@code {
+    [Parameter]
+    public Guid TableId { get; set; }
+
+    private string codeInput = "";
+    private string error = "";
+    private bool loading;
+    private bool completing;
+    private string? tableName;
+    private TableOrderDto? order;
+    private List<string> categories = [];
+    private string selectedCategory = "";
+
+    private List<MenuItem> CurrentItems => MenuService.GetItemsByCategory(selectedCategory);
+
+    protected override async Task OnInitializedAsync()
+    {
+        categories = MenuService.GetCategories();
+        selectedCategory = categories.FirstOrDefault() ?? "";
+
+        if (StaffSession.HasAccessCode)
+        {
+            await LoadTable();
+        }
+    }
+
+    private async Task Authorize()
+    {
+        StaffSession.AccessCode = codeInput.Trim();
+        await LoadTable();
+
+        if (!string.IsNullOrWhiteSpace(error))
+        {
+            StaffSession.AccessCode = "";
+        }
+    }
+
+    private async Task LoadTable()
+    {
+        loading = true;
+        error = "";
+
+        try
+        {
+            var statuses = await SendForJson<List<TableStatusDto>>(HttpMethod.Get, "api/staff/tables/status") ?? [];
+            var table = statuses.FirstOrDefault(t => t.Id == TableId);
+            tableName = table?.Name ?? "Tafel";
+
+            order = await SendForJson<TableOrderDto>(HttpMethod.Get, $"api/staff/tables/{TableId}/order", allowNotFound: true);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            error = "De personeelscode klopt niet.";
+        }
+        catch
+        {
+            error = "De tafelrekening kon niet worden geladen.";
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private async Task AddItem(MenuItem item)
+    {
+        error = "";
+
+        try
+        {
+            var request = new AddOrderItemRequest(selectedCategory, item.Name, item.Price, 1, null);
+            order = await SendForJson<TableOrderDto>(HttpMethod.Post, $"api/staff/tables/{TableId}/order", request);
+            tableName = order?.TableName ?? tableName;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            error = "De personeelscode klopt niet.";
+            StaffSession.AccessCode = "";
+        }
+        catch
+        {
+            error = "Het gerecht kon niet worden toegevoegd.";
+        }
+    }
+
+    private async Task UpdateQuantity(TableOrderItemDto item, int quantity)
+    {
+        if (order is null)
+        {
+            return;
+        }
+
+        error = "";
+        try
+        {
+            var request = new UpdateOrderItemRequest(quantity, item.Note);
+            order = await SendForJson<TableOrderDto>(HttpMethod.Put, $"api/staff/orders/{order.Id}/items/{item.Id}", request);
+        }
+        catch
+        {
+            error = "De orderregel kon niet worden bijgewerkt.";
+        }
+    }
+
+    private async Task CompleteOrder()
+    {
+        if (order is null)
+        {
+            return;
+        }
+
+        completing = true;
+        error = "";
+
+        try
+        {
+            var completed = await SendForJson<TableOrderDto>(HttpMethod.Post, $"api/staff/orders/{order.Id}/complete");
+            if (completed is not null)
+            {
+                Nav.NavigateTo($"/personeel/orders/{completed.Id}/bon");
+            }
+        }
+        catch
+        {
+            error = "De rekening kon niet worden afgerond.";
+        }
+        finally
+        {
+            completing = false;
+        }
+    }
+
+    private async Task<T?> SendForJson<T>(HttpMethod method, string url, object? body = null, bool allowNotFound = false)
+    {
+        using var request = new HttpRequestMessage(method, url);
+        request.Headers.Add("X-Owner-Code", StaffSession.AccessCode);
+
+        if (body is not null)
+        {
+            request.Content = JsonContent.Create(body);
+        }
+
+        var response = await Http.SendAsync(request);
+        if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        {
+            throw new UnauthorizedAccessException();
+        }
+
+        if (allowNotFound && response.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            return default;
+        }
+
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<T>();
+    }
+
+    private static string DisplayCustomer(TableOrderDto order)
+    {
+        if (!string.IsNullOrWhiteSpace(order.CustomerName) && !string.IsNullOrWhiteSpace(order.CustomerPhone))
+        {
+            return $"{order.CustomerName} · {order.CustomerPhone}";
+        }
+
+        return order.CustomerName ?? order.CustomerPhone ?? "";
+    }
+}

@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "SultanaBBQ",
   "resources": {
-    "hash": "sha256-cZ33TddEaqpeejqM4bThO6bujyhXDEMdNyrU5RGdt3Q=",
+    "hash": "sha256-WbWGt/lAHX9RA9GtDiWdZGQ/SRRjquNo2ZI2AJUzlgg=",
     "fingerprinting": {
       "Microsoft.AspNetCore.Authorization.ag393jzyei.wasm": "Microsoft.AspNetCore.Authorization.wasm",
       "Microsoft.AspNetCore.Components.6n06tqyzkk.wasm": "Microsoft.AspNetCore.Components.wasm",
@@ -195,25 +195,25 @@
       "netstandard.97to7qusgy.wasm": "netstandard.wasm",
       "System.Private.CoreLib.7gmqe04hm6.wasm": "System.Private.CoreLib.wasm",
       "dotnet.js": "dotnet.js",
-      "dotnet.native.hvg7u8bimp.js": "dotnet.native.js",
-      "dotnet.native.3c4wvb350q.wasm": "dotnet.native.wasm",
-      "dotnet.runtime.cymp1amu5g.js": "dotnet.runtime.js",
+      "dotnet.native.6m0hb3g78a.js": "dotnet.native.js",
+      "dotnet.native.zw8ib5pvmp.wasm": "dotnet.native.wasm",
+      "dotnet.runtime.7laf4z0i7i.js": "dotnet.runtime.js",
       "icudt_CJK.tjcz0u77k5.dat": "icudt_CJK.dat",
       "icudt_EFIGS.tptq2av103.dat": "icudt_EFIGS.dat",
       "icudt_no_CJK.lfu7j35m59.dat": "icudt_no_CJK.dat",
-      "SultanaBBQ.Shared.41h3wqmas7.wasm": "SultanaBBQ.Shared.wasm",
-      "SultanaBBQ.Shared.3isyio28p0.pdb": "SultanaBBQ.Shared.pdb",
-      "SultanaBBQ.dxm4rw1sqe.wasm": "SultanaBBQ.wasm",
-      "SultanaBBQ.a0chq2x2ik.pdb": "SultanaBBQ.pdb"
+      "SultanaBBQ.Shared.3plf3zenuh.wasm": "SultanaBBQ.Shared.wasm",
+      "SultanaBBQ.Shared.azhiam6m29.pdb": "SultanaBBQ.Shared.pdb",
+      "SultanaBBQ.vra8jfn9sg.wasm": "SultanaBBQ.wasm",
+      "SultanaBBQ.7sm9wrlny8.pdb": "SultanaBBQ.pdb"
     },
     "jsModuleNative": {
-      "dotnet.native.hvg7u8bimp.js": "sha256-LX9rFEWGVxhkOkAVPG0w5RxPwzPBlEUz6dQNjWS7M+M="
+      "dotnet.native.6m0hb3g78a.js": "sha256-oksVqHEW5dic8ULICrYkuUVNascZfAw7ZPMG45TR/ak="
     },
     "jsModuleRuntime": {
-      "dotnet.runtime.cymp1amu5g.js": "sha256-dCmS9Zx4egtLYSUgTI3R6gMS+Yg8MkzxW1CgEMJKAEw="
+      "dotnet.runtime.7laf4z0i7i.js": "sha256-W1NVCHdXLsZwmcxPLLatkJOSnfn1UNne6uSpSi63ozM="
     },
     "wasmNative": {
-      "dotnet.native.3c4wvb350q.wasm": "sha256-89jyB8DlCnV2BPMV477jOe1Sm0WXwVf8RuoSPsj4Ym8="
+      "dotnet.native.zw8ib5pvmp.wasm": "sha256-o2x4vkXl29AT7+ydjSBFXzuxrlVCqlbu0dnKYeMk3RM="
     },
     "icu": {
       "icudt_CJK.tjcz0u77k5.dat": "sha256-SZLtQnRc0JkwqHab0VUVP7T3uBPSeYzxzDnpxPpUnHk=",
@@ -414,12 +414,12 @@
       "WindowsBase.g3ep9asl8e.wasm": "sha256-ZNubnH6lgybyHtAdlMT40aDBYT2V7npJIDu1AwBtujs=",
       "mscorlib.l7xs6zruqy.wasm": "sha256-3waJ44t0BBPDuFSBnvKXk4ReWykH4S/GJoncIfrAlvg=",
       "netstandard.97to7qusgy.wasm": "sha256-K2fLR0yH1WiUkzlu09Y2p2sm9BhyhGsoYJBopqdIuV4=",
-      "SultanaBBQ.Shared.41h3wqmas7.wasm": "sha256-CN/SpxyjOee/koLK8XjSs3lCWxEQklH6ech/IITomYM=",
-      "SultanaBBQ.dxm4rw1sqe.wasm": "sha256-7yf06c3LDcKF3SbVmCnvmZ8BFSn9BzT5WN65rX8pLGM="
+      "SultanaBBQ.Shared.3plf3zenuh.wasm": "sha256-afWW3iJGpun/1IFsigintGhh3Q328rj+S8qB7SIs42Q=",
+      "SultanaBBQ.vra8jfn9sg.wasm": "sha256-iycTUU4pcxA0Z/eNpOwx829aJP5UhhkF/eyT4zGF6JQ="
     },
     "pdb": {
-      "SultanaBBQ.Shared.3isyio28p0.pdb": "sha256-y5YORjXkHmwIE6+0zspt3wj+bqj4EObDA6uSyuqRKUs=",
-      "SultanaBBQ.a0chq2x2ik.pdb": "sha256-ConbO7PBPHU7bySs9KSwZrTaoJIZmtAfOGifaOP7X4w="
+      "SultanaBBQ.Shared.azhiam6m29.pdb": "sha256-hm3hn0RKJaUgbe1qlMWrzCQSG/YqJAjdHELDyhZ85ag=",
+      "SultanaBBQ.7sm9wrlny8.pdb": "sha256-l1fwjOGxr9BT/MMkD3ctAB3wAbU0RXLq2PlsZ1OOIrk="
     }
   },
   "cacheBootResources": true,

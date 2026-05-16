@@ -23,4 +23,6 @@ public sealed record OwnerReservation(
     string Time,
     string? Notes,
     string Status,
-    DateTimeOffset CreatedAt);
+    DateTimeOffset CreatedAt,
+    Guid? TableId = null,
+    string? TableName = null);

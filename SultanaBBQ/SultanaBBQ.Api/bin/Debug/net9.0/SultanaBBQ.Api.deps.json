@@ -28,8 +28,7 @@
       },
       "MailKit/4.16.0": {
         "dependencies": {
-          "MimeKit": "4.16.0",
-          "System.Formats.Asn1": "8.0.1"
+          "MimeKit": "4.16.0"
         },
         "runtime": {
           "lib/net8.0/MailKit.dll": {
@@ -53,8 +52,7 @@
       },
       "Microsoft.AspNetCore.Components/9.0.14": {
         "dependencies": {
-          "Microsoft.AspNetCore.Authorization": "9.0.14",
-          "Microsoft.AspNetCore.Components.Analyzers": "9.0.14"
+          "Microsoft.AspNetCore.Authorization": "9.0.14"
         },
         "runtime": {
           "lib/net9.0/Microsoft.AspNetCore.Components.dll": {
@@ -63,7 +61,6 @@
           }
         }
       },
-      "Microsoft.AspNetCore.Components.Analyzers/9.0.14": {},
       "Microsoft.AspNetCore.Components.Forms/9.0.14": {
         "dependencies": {
           "Microsoft.AspNetCore.Components": "9.0.14"
@@ -300,8 +297,7 @@
       },
       "MimeKit/4.16.0": {
         "dependencies": {
-          "BouncyCastle.Cryptography": "2.6.2",
-          "System.Security.Cryptography.Pkcs": "8.0.1"
+          "BouncyCastle.Cryptography": "2.6.2"
         },
         "runtime": {
           "lib/net8.0/MimeKit.dll": {
@@ -321,8 +317,6 @@
           }
         }
       },
-      "System.Formats.Asn1/8.0.1": {},
-      "System.Security.Cryptography.Pkcs/8.0.1": {},
       "SultanaBBQ/1.0.0": {
         "dependencies": {
           "Microsoft.AspNetCore.Components.WebAssembly": "9.0.14",
@@ -378,13 +372,6 @@
       "sha512": "sha512-dh9H5mgN6/xaCZObYyBo94Jxwxj+J7B+Ch8++vVdgd8IC7FNws2bVvyreT2sBkCFKFqf6gUPiSKwBa6ukT9yGw==",
       "path": "microsoft.aspnetcore.components/9.0.14",
       "hashPath": "microsoft.aspnetcore.components.9.0.14.nupkg.sha512"
-    },
-    "Microsoft.AspNetCore.Components.Analyzers/9.0.14": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-2yrkT+Akish37Bm4ECSCPg8lrjCkqszzqahAI0elI1wZlAbsXaoW6W5eEp3k5lUua5ZgQBTy9N3+RQGoOWQFWw==",
-      "path": "microsoft.aspnetcore.components.analyzers/9.0.14",
-      "hashPath": "microsoft.aspnetcore.components.analyzers.9.0.14.nupkg.sha512"
     },
     "Microsoft.AspNetCore.Components.Forms/9.0.14": {
       "type": "package",
@@ -546,20 +533,6 @@
       "sha512": "sha512-q5RfBI+wywJSFUNDE1L4ZbHEHCFTblo8Uf6A6oe4feOUFYiUQXyAf9GBh5qEZpvJaHiEbpBPkQumjEhXCJxdrg==",
       "path": "npgsql/10.0.2",
       "hashPath": "npgsql.10.0.2.nupkg.sha512"
-    },
-    "System.Formats.Asn1/8.0.1": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-XqKba7Mm/koKSjKMfW82olQdmfbI5yqeoLV/tidRp7fbh5rmHAQ5raDI/7SU0swTzv+jgqtUGkzmFxuUg0it1A==",
-      "path": "system.formats.asn1/8.0.1",
-      "hashPath": "system.formats.asn1.8.0.1.nupkg.sha512"
-    },
-    "System.Security.Cryptography.Pkcs/8.0.1": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-CoCRHFym33aUSf/NtWSVSZa99dkd0Hm7OCZUxORBjRB16LNhIEOf8THPqzIYlvKM0nNDAPTRBa1FxEECrgaxxA==",
-      "path": "system.security.cryptography.pkcs/8.0.1",
-      "hashPath": "system.security.cryptography.pkcs.8.0.1.nupkg.sha512"
     },
     "SultanaBBQ/1.0.0": {
       "type": "project",

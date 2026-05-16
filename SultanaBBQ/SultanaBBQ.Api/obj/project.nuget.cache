@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "hoUlU80KIXo=",
+  "dgSpecHash": "1TEWWjoCP7g=",
   "success": true,
   "projectFilePath": "/Users/bilalzambib/Sultanabbq/SultanaBBQ/SultanaBBQ.Api/SultanaBBQ.Api.csproj",
   "expectedPackageFiles": [
@@ -33,7 +33,10 @@
     "/Users/bilalzambib/.nuget/packages/mimekit/4.16.0/mimekit.4.16.0.nupkg.sha512",
     "/Users/bilalzambib/.nuget/packages/npgsql/10.0.2/npgsql.10.0.2.nupkg.sha512",
     "/Users/bilalzambib/.nuget/packages/system.formats.asn1/8.0.1/system.formats.asn1.8.0.1.nupkg.sha512",
-    "/Users/bilalzambib/.nuget/packages/system.security.cryptography.pkcs/8.0.1/system.security.cryptography.pkcs.8.0.1.nupkg.sha512"
+    "/Users/bilalzambib/.nuget/packages/system.security.cryptography.pkcs/8.0.1/system.security.cryptography.pkcs.8.0.1.nupkg.sha512",
+    "/Users/bilalzambib/.nuget/packages/microsoft.netcore.app.ref/9.0.13/microsoft.netcore.app.ref.9.0.13.nupkg.sha512",
+    "/Users/bilalzambib/.nuget/packages/microsoft.aspnetcore.app.ref/9.0.13/microsoft.aspnetcore.app.ref.9.0.13.nupkg.sha512",
+    "/Users/bilalzambib/.nuget/packages/microsoft.netcore.app.host.osx-arm64/9.0.13/microsoft.netcore.app.host.osx-arm64.9.0.13.nupkg.sha512"
   ],
   "logs": []
 }

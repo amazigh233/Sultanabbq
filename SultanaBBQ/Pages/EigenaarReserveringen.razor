@@ -60,6 +60,10 @@
                                 <div class="owner-reservation-title">@reservation.Name</div>
                                 <div class="owner-reservation-meta">
                                     @reservation.Guests personen · @reservation.Date.ToString("dd-MM-yyyy") · @reservation.Time
+                                    @if (!string.IsNullOrWhiteSpace(reservation.TableName))
+                                    {
+                                        <span> · @reservation.TableName</span>
+                                    }
                                 </div>
                             </div>
                             <span class="owner-status @(reservation.Status == "confirmed" ? "confirmed" : "pending")">
@@ -163,7 +167,8 @@
             var response = await Http.SendAsync(request);
             if (!response.IsSuccessStatusCode)
             {
-                error = "De reservering kon niet worden bevestigd.";
+                var message = await response.Content.ReadFromJsonAsync<StaffMessageResponse>();
+                error = message?.Message ?? "De reservering kon niet worden bevestigd.";
                 return;
             }
 

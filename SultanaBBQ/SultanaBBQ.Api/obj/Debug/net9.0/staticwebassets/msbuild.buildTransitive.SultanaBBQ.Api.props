@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="../buildMultiTargeting/SultanaBBQ.Api.props" />
-</Project>

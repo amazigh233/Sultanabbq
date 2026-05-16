@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SultanaBBQ")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9a61f330e3891a8679af05dfe3f2453228469c9c")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+72deee4745c8b578ac2424268bf854372690fbf0")]
 [assembly: System.Reflection.AssemblyProductAttribute("SultanaBBQ")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SultanaBBQ")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

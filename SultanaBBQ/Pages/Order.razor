@@ -2,7 +2,10 @@
 @page "/afhalen"
 @using System.Text
 @using SultanaBBQ.Services
+@using SultanaBBQ.Shared
+@inject HttpClient Http
 @inject IJSRuntime JS
+@inject NavigationManager Nav
 
 <SeoHead Title="Bestellen en afhalen Sultana BBQ Utrecht | Halal BBQ Overvecht"
          Description="Bestel halal BBQ, mixed grill, schotels, kipgerechten en burgers bij Sultana BBQ in Utrecht Overvecht. Kies afhalen of bezorgen en verstuur je bestelling."
@@ -90,9 +93,9 @@
                                 <span>€@LineTotal(line).ToString("F2")</span>
                             </div>
                             <div class="order-quantity">
-                                <button type="button" @onclick="() => RemoveItem(line.Item)" aria-label="@($"Een {line.Item.Name} minder")">-</button>
+                                <button type="button" @onclick="() => RemoveLine(line)" aria-label="@($"Een {line.Item.Name} minder")">-</button>
                                 <span>@line.Quantity</span>
-                                <button type="button" @onclick="() => AddItem(line.Item)" aria-label="@($"Een {line.Item.Name} meer")">+</button>
+                                <button type="button" @onclick="() => AddLine(line)" aria-label="@($"Een {line.Item.Name} meer")">+</button>
                             </div>
                         </div>
                     }
@@ -116,10 +119,18 @@
                 <label>
                     Type bestelling
                     <select @bind="orderType">
+                        <option>Aan tafel</option>
                         <option>Afhalen</option>
                         <option>Bezorgen</option>
                     </select>
                 </label>
+                @if (orderType == "Aan tafel")
+                {
+                    <label>
+                        Tafelnummer
+                        <input @bind="tableNumber" @bind:event="oninput" placeholder="Bijv. 1 of Tafel 1" />
+                    </label>
+                }
                 @if (orderType == "Bezorgen")
                 {
                     <label>
@@ -133,8 +144,18 @@
                 </label>
             </div>
 
-            <button type="button" class="btn-primary order-submit" @onclick="OpenWhatsApp" disabled="@(!CanOrder)">
-                <span>Bestelling Versturen</span>
+            @if (!string.IsNullOrWhiteSpace(submitMessage))
+            {
+                <div class="order-submit-message success" role="status">@submitMessage</div>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(submitError))
+            {
+                <div class="form-submit-error" role="alert">@submitError</div>
+            }
+
+            <button type="button" class="btn-primary order-submit" @onclick="SubmitOrder" disabled="@(!CanSubmit || submitting)">
+                <span>@SubmitButtonText</span>
             </button>
 
         </aside>
@@ -148,13 +169,21 @@
     private string selectedCategory = string.Empty;
     private string customerName = string.Empty;
     private string customerPhone = string.Empty;
+    private string tableNumber = string.Empty;
     private string deliveryAddress = string.Empty;
     private string orderNote = string.Empty;
-    private string orderType = "Afhalen";
+    private string orderType = "Aan tafel";
+    private string submitError = string.Empty;
+    private string submitMessage = string.Empty;
+    private bool submitting;
 
     private List<MenuItem> CurrentItems => MenuService.GetItemsByCategory(selectedCategory);
     private decimal Total => cart.Values.Sum(LineTotal);
     private bool CanOrder => cart.Count > 0;
+    private bool CanSubmit => CanOrder && (orderType != "Aan tafel" || !string.IsNullOrWhiteSpace(tableNumber));
+    private string SubmitButtonText => submitting
+        ? "Bestelling wordt verstuurd..."
+        : orderType == "Aan tafel" ? "Plaats bestelling" : "Bestelling versturen";
 
     protected override void OnInitialized()
     {
@@ -169,38 +198,122 @@
 
     private void AddItem(MenuItem item)
     {
-        if (cart.TryGetValue(item.Name, out var line))
+        var key = GetCartKey(selectedCategory, item.Name);
+        if (cart.TryGetValue(key, out var line))
         {
             line.Quantity++;
             return;
         }
 
-        cart[item.Name] = new OrderLine { Item = item, Quantity = 1 };
+        cart[key] = new OrderLine { Category = selectedCategory, Item = item, Quantity = 1 };
     }
 
-    private void RemoveItem(MenuItem item)
+    private void AddLine(OrderLine line)
     {
-        if (!cart.TryGetValue(item.Name, out var line))
+        line.Quantity++;
+    }
+
+    private void RemoveLine(OrderLine line)
+    {
+        var key = GetCartKey(line.Category, line.Item.Name);
+        if (!cart.TryGetValue(key, out var existingLine))
         {
             return;
         }
 
-        line.Quantity--;
+        existingLine.Quantity--;
 
-        if (line.Quantity <= 0)
+        if (existingLine.Quantity <= 0)
         {
-            cart.Remove(item.Name);
+            cart.Remove(key);
         }
     }
 
-    private async Task OpenWhatsApp()
+    private async Task SubmitOrder()
     {
-        if (!CanOrder)
+        submitError = "";
+        submitMessage = "";
+
+        if (!CanSubmit || submitting)
         {
+            if (orderType == "Aan tafel" && string.IsNullOrWhiteSpace(tableNumber))
+            {
+                submitError = "Vul uw tafelnummer in.";
+            }
+
+            return;
+        }
+
+        if (orderType == "Aan tafel")
+        {
+            await SubmitTableOrder();
             return;
         }
 
         await JS.InvokeVoidAsync("SultanaInterop.openUrl", BuildWhatsAppUrl());
+    }
+
+    private async Task SubmitTableOrder()
+    {
+        submitting = true;
+
+        try
+        {
+            var request = new CustomerTableOrderRequest(
+                tableNumber.Trim(),
+                string.IsNullOrWhiteSpace(customerName) ? null : customerName.Trim(),
+                string.IsNullOrWhiteSpace(customerPhone) ? null : customerPhone.Trim(),
+                string.IsNullOrWhiteSpace(orderNote) ? null : orderNote.Trim(),
+                cart.Values.Select(line => new CustomerTableOrderItemRequest(
+                    line.Category,
+                    line.Item.Name,
+                    line.Item.Price,
+                    line.Quantity)).ToList());
+
+            var response = await PostTableOrderAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                submitMessage = "Uw bestelling is geplaatst. De medewerker ziet deze direct bij uw tafel.";
+                cart.Clear();
+                orderNote = "";
+                return;
+            }
+
+            submitError = await ReadOrderError(response);
+        }
+        catch
+        {
+            submitError = "Er is geen verbinding met de bestelserver. Open de site via de API-host of herstart de server.";
+        }
+        finally
+        {
+            submitting = false;
+        }
+    }
+
+    private async Task<HttpResponseMessage> PostTableOrderAsync(CustomerTableOrderRequest request)
+    {
+        var response = await Http.PostAsJsonAsync("api/table-orders", request);
+        if (!ShouldTryLocalApiFallback(response))
+        {
+            return response;
+        }
+
+        response.Dispose();
+        return await Http.PostAsJsonAsync("http://localhost:5171/api/table-orders", request);
+    }
+
+    private bool ShouldTryLocalApiFallback(HttpResponseMessage response)
+    {
+        if (response.StatusCode is not (System.Net.HttpStatusCode.MethodNotAllowed or System.Net.HttpStatusCode.NotFound))
+        {
+            return false;
+        }
+
+        var current = new Uri(Nav.Uri);
+        return current.Port != 5171 &&
+            (string.Equals(current.Host, "localhost", StringComparison.OrdinalIgnoreCase) ||
+             string.Equals(current.Host, "127.0.0.1", StringComparison.OrdinalIgnoreCase));
     }
 
     private string BuildWhatsAppUrl()
@@ -231,6 +344,32 @@
         return $"https://wa.me/{WhatsAppNumber}?text={Uri.EscapeDataString(message.ToString())}";
     }
 
+    private static async Task<string> ReadOrderError(HttpResponseMessage response)
+    {
+        if (response.StatusCode == System.Net.HttpStatusCode.MethodNotAllowed ||
+            response.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            return "De bestel-API is niet actief op deze pagina. Open de site via de API-host en herstart de server als u nog een oude versie ziet.";
+        }
+
+        try
+        {
+            var message = await response.Content.ReadFromJsonAsync<StaffMessageResponse>();
+            if (!string.IsNullOrWhiteSpace(message?.Message))
+            {
+                return message.Message;
+            }
+        }
+        catch
+        {
+            // Some server errors return HTML/plain text instead of the small JSON message model.
+        }
+
+        return response.StatusCode == System.Net.HttpStatusCode.InternalServerError
+            ? "De bestelling kon niet worden geplaatst door een serverfout. Controleer de database-instellingen."
+            : "De bestelling kon niet worden geplaatst.";
+    }
+
     private static void AppendIfFilled(StringBuilder message, string label, string value)
     {
         if (!string.IsNullOrWhiteSpace(value))
@@ -242,6 +381,11 @@
     private static decimal LineTotal(OrderLine line)
     {
         return line.Item.Price * line.Quantity;
+    }
+
+    private static string GetCartKey(string category, string itemName)
+    {
+        return $"{category}::{itemName}";
     }
 
     private bool ShouldShowPhoto(int index)
@@ -299,6 +443,7 @@
 
     private sealed class OrderLine
     {
+        public required string Category { get; init; }
         public required MenuItem Item { get; init; }
         public int Quantity { get; set; }
     }
